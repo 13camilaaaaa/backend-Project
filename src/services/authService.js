@@ -1,0 +1,141 @@
+// src/services/AuthService.js
+import { Usuarios } from '../models/Usuarios.js'; 
+import Direccion from '../models/Direccion.js';// Importa el modelo Direccion directamente para crear direcciones durante el registro
+import bcrypt from 'bcryptjs'; // Importa bcrypt para el hasheo de contraseñas
+
+class AuthService {
+    /**
+     * @description Registra un nuevo usuario, incluyendo la creación de su dirección.
+     * Esta función maneja la lógica de negocio para el registro.
+     * @param {Object} userData - Datos del usuario y su dirección.
+     * @param {string} userData.numero_identificacion
+     * @param {number} userData.id_tipo_identificacion
+     * @param {string} userData.nombre_usuario
+     * @param {string} [userData.apellido_usuario]
+     * @param {string} userData.contrasena - Contraseña en texto plano.
+     * @param {string} userData.correo_usuario
+     * @param {string} [userData.telefono_usuario]
+     * @param {Object} userData.direccion - Objeto con los datos de la dirección.
+     * @returns {number} - El ID del usuario recién registrado.
+     */
+    async registerUser(userData) {
+        try {
+            const {
+                numero_identificacion,
+                id_tipo_identificacion,
+                nombre_usuario,
+                apellido_usuario,
+                contrasena,
+                correo_usuario,
+                telefono_usuario,
+                direccion
+            } = userData;
+
+            // 1. Validaciones de datos de entrada (pueden ser más robustas en un middleware)
+            // Asumiendo que Usuarios.isValid y Direccion.isValid son métodos estáticos o de instancia en sus respectivos modelos
+            if (!Usuarios.isValid({ correo_usuario, contrasena, numero_identificacion, id_tipo_identificacion, nombre_usuario })) {
+                throw new Error('Datos de usuario o contraseña inválidos.');
+            }
+            if (!Direccion.isValid(direccion)) {
+                throw new Error('Datos de dirección inválidos.');
+            }
+
+            // Verificar si el correo ya está registrado
+            const existingUser = await Usuarios.findByEmail(correo_usuario);
+            if (existingUser) {
+                throw new Error('El correo electrónico ya está registrado.');
+            }
+
+            // 2. Hashear la contraseña
+            const hashedPassword = await bcrypt.hash(contrasena, 10); // 10 es el costo de salting
+
+            // 3. Crear la dirección primero (usando el modelo Direccion directamente)
+            const id_direccion = await Direccion.create(
+                direccion.id_tipo_via,
+                direccion.numero_via,
+                direccion.complemento,
+                direccion.barrio,
+                direccion.ciudad
+            );
+
+            // 4. Crear el usuario, vinculándolo a la dirección
+            const newUserId = await Usuarios.create(
+                numero_identificacion,
+                id_tipo_identificacion,
+                nombre_usuario,
+                apellido_usuario,
+                hashedPassword, // Usar la contraseña hasheada
+                correo_usuario,
+                telefono_usuario,
+                id_direccion
+            );
+
+            return newUserId;
+        } catch (error) {
+            console.error('[AuthService] Error al registrar usuario:', error.message);
+            throw error; // Propaga el error al controlador
+        }
+    }
+
+    /**
+     * @description Verifica las credenciales de un usuario para el inicio de sesión.
+     * @param {string} email - Correo electrónico del usuario.
+     * @param {string} password - Contraseña en texto plano.
+     * @returns {Object|null} - El objeto usuario (sin contraseña) si las credenciales son válidas, o null.
+     */
+    async loginUser(email, password) {
+        try {
+            // Buscar el usuario por email, incluyendo la contraseña hasheada para verificación
+            const user = await Usuarios.findByEmail(email, true); // Pasar true para incluir la contraseña
+            if (!user) {
+                return null; // Usuario no encontrado
+            }
+
+            // Comparar la contraseña proporcionada con la hasheada en la base de datos
+            const isMatch = await bcrypt.compare(password, user.contrasena);
+            if (!isMatch) {
+                return null; // Contraseña incorrecta
+            }
+
+            // Eliminar la contraseña del objeto usuario antes de devolverlo por seguridad
+            delete user.contrasena;
+            return user; // Retorna el usuario sin la contraseña
+        } catch (error) {
+            console.error('[AuthService] Error en el login del usuario:', error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * @description Busca un usuario por su ID.
+     * @param {number} userId - ID del usuario.
+     * @returns {Object|null} - El objeto usuario o null si no se encuentra.
+     */
+    async getUserById(userId) {
+        try {
+            const user = await Usuarios.getById(userId);
+            return user;
+        } catch (error) {
+            console.error(`[AuthService] Error al obtener usuario con ID ${userId}:`, error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * @description Actualiza el token de refresco de un usuario.
+     * @param {number} userId - ID del usuario.
+     * @param {string|null} refreshToken - Token de refresco o null para limpiar.
+     */
+    async updateRefreshToken(userId, refreshToken) {
+        try {
+            await Usuarios.updateRefreshToken(userId, refreshToken);
+        } catch (error) {
+            console.error(`[AuthService] Error al actualizar refresh token para usuario ${userId}:`, error.message);
+            throw error;
+        }
+    }
+
+    // Puedes añadir más métodos relacionados con la gestión de usuarios (actualizar perfil, etc.)
+}
+
+export default new AuthService();
