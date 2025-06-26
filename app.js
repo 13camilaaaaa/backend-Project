@@ -8,6 +8,9 @@ import dotenv from 'dotenv';          // Para cargar variables de entorno desde 
 import connection from './src/utils/db.js'; // Importa la conexión a la base de datos
 import path from 'path';              // ¡NUEVO! Módulo 'path' para trabajar con rutas de archivos
 import { fileURLToPath } from 'url';  // Para obtener __dirname en módulos ES
+import cookieParser from 'cookie-parser';
+// --- ADAPTACIÓN CLAVE: Importar el pool de conexiones de tu utils/db.js ---
+import pool from './src/utils/db.js'; // Importa el pool de conexiones
 
 // Para obtener __dirname en módulos ES (importante para path.join)
 const __filename = fileURLToPath(import.meta.url);
@@ -25,6 +28,7 @@ import tallasRoutes from './src/routes/tallasRoutes.js';
 import tiposIdentificacionRoutes from './src/routes/tiposIdentificacionRoutes.js';
 import tiposViaRoutes from './src/routes/tiposViaRoutes.js';
 import rolesRoutes from './src/routes/rolesRoutes.js';
+import globalErrorMiddleware from './src/middlewares/globalErrorMiddleware.js';
 
 // Carga las variables de entorno desde el archivo .env
 dotenv.config();
@@ -36,11 +40,16 @@ const PORT = process.env.PORT || 3000;
 
 // 2. Middlewares Globales
 // Habilita CORS para todas las solicitudes (importante para que el frontend pueda comunicarse)
-app.use(cors());
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173', // ¡Asegúrate de definir FRONTEND_URL en tu .env del backend!
+    credentials: true // Permite que las cookies (si se usan) se envíen en las solicitudes
+}));
 // Parsea las solicitudes entrantes con cargas JSON
 app.use(express.json());
 // Parsea las solicitudes con cargas de URL-encoded (para formularios HTML si los usas)
 app.use(express.urlencoded({ extended: true }));
+
+app.use(cookieParser());
 
 // --- ¡NUEVO! Configuración para servir archivos estáticos (¡IMÁGENES!) ---
 // Esta línea le dice a Express que la carpeta 'uploads' (que está dentro de 'src' en tu backend)
@@ -53,20 +62,20 @@ app.use('/uploads', express.static(path.join(__dirname, 'src', 'uploads')));
 
 
 // 3. Conexión a la Base de Datos
-async function connectDB() {
+// 3. Conexión a la Base de Datos
+// --- ADAPTACIÓN CLAVE: Función de conexión inicial usando tu 'pool' ---
+async function iniciarConexionDB() {
     try {
-        // Intenta obtener una conexión para verificar que la DB está disponible
-        const conn = await connection.getConnection();
-        conn.release(); // Libera la conexión de vuelta al pool
-        console.log('✔ Conexión a la base de datos MySQL establecida correctamente.');
+        const conexion = await pool.getConnection(); // Intenta obtener una conexión del pool
+        conexion.release(); // Libera la conexión de vuelta al pool
+        console.log('✅ Conexión exitosa a la base de datos MySQL.');
     } catch (error) {
-        console.error('✖ Error al conectar a la base de datos:', error.message);
+        console.error('❌ Error al conectar a la base de datos:', error.message);
         console.error('Asegúrate de que tu servidor MySQL esté en ejecución y las credenciales sean correctas en .env');
-        // No salimos de la aplicación inmediatamente, pero el error es crítico.
-        // Podrías añadir lógica de reintento o un mecanismo de alerta aquí.
+        process.exit(1); // Es recomendable salir de la aplicación si la conexión inicial a la DB falla
     }
 }
-connectDB(); // Llama a la función para conectar a la DB al iniciar la aplicación
+iniciarConexionDB(); // Llama a la función para conectar a la DB al iniciar la aplicación
 
 // 4. Montaje de Rutas de la API
 // Prefijo '/api' para todas las rutas de tu API RESTful
@@ -92,6 +101,8 @@ app.use((err, req, res, next) => {
     console.error(err.stack); // Imprime el stack trace del error para depuración
     res.status(500).json({ message: 'Algo salió mal en el servidor!', error: err.message });
 });
+
+app.use(globalErrorMiddleware);
 
 // 7. Inicio del Servidor
 app.listen(PORT, () => {

@@ -9,7 +9,7 @@ export class Usuarios {
      * @param {boolean} [includePassword=false] - Si es true, incluye el hash de la contraseña (solo para login).
      * @returns {Object|null} - El objeto usuario con sus detalles, o null si no se encuentra.
      */
-    static async findByEmail(email, includePassword = false) {
+    static  findByEmail = async (email, includePassword = false) => {
         try {
             let selectFields = `
                 u.id,
@@ -64,11 +64,11 @@ export class Usuarios {
      * @param {number} id_direccion - ID de la dirección asociada al usuario.
      * @returns {number} - El ID del usuario recién creado.
      */
-    static async create(numero_identificacion, id_tipo_identificacion, nombre_usuario, apellido_usuario, contrasena, correo_usuario, telefono_usuario, id_direccion) {
+    static  create = async(numero_identificacion, id_tipo_identificacion, nombre_usuario, apellido_usuario, contrasena, correo_usuario, telefono_usuario, id_direccion) => {
         try {
             const [result] = await connection.query(
                 `INSERT INTO usuarios (numero_identificacion, id_tipo_identificacion, nombre_usuario, apellido_usuario, contrasena, correo_usuario, telefono_usuario, id_direccion)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
                 [numero_identificacion, id_tipo_identificacion, nombre_usuario, apellido_usuario, contrasena, correo_usuario, telefono_usuario, id_direccion]
             );
             return result.insertId;
@@ -87,7 +87,7 @@ export class Usuarios {
      * @param {number} id - El ID del usuario.
      * @param {string|null} refreshToken - El nuevo token de refresco o null para limpiarlo.
      */
-    static async updateRefreshToken(id, refreshToken) {
+    static  updateRefreshToken = async(id, refreshToken) =>{
         try {
             await connection.query('UPDATE usuarios SET refresh_token = ? WHERE id = ?', [refreshToken, id]);
         } catch (error) {
@@ -98,7 +98,7 @@ export class Usuarios {
 
     // Puedes añadir métodos para obtener usuario por ID, actualizar usuario, eliminar usuario, etc.
     // Siguiendo el patrón de getById en Producto.js, pero para usuario
-    static async getById(id, includePassword = false) {
+    static  getById = async(id, includePassword = false) => {
         try {
             let selectFields = `
                 u.id,
