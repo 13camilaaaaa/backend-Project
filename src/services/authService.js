@@ -1,6 +1,5 @@
 // src/services/AuthService.js
-import { Usuarios } from '../models/Usuarios.js'; 
-import Direccion from '../models/Direccion.js';// Importa el modelo Direccion directamente para crear direcciones durante el registro
+import { Usuarios } from '../models/Usuarios.js';
 import bcrypt from 'bcryptjs'; // Importa bcrypt para el hasheo de contraseñas
 
 class AuthService {
@@ -18,27 +17,15 @@ class AuthService {
      * @param {Object} userData.direccion - Objeto con los datos de la dirección.
      * @returns {number} - El ID del usuario recién registrado.
      */
-    async registerUser(userData) {
+    static registerUser = async(userData)  => {
         try {
             const {
-                numero_identificacion,
-                id_tipo_identificacion,
                 nombre_usuario,
                 apellido_usuario,
                 contrasena,
                 correo_usuario,
                 telefono_usuario,
-                direccion
             } = userData;
-
-            // 1. Validaciones de datos de entrada (pueden ser más robustas en un middleware)
-            // Asumiendo que Usuarios.isValid y Direccion.isValid son métodos estáticos o de instancia en sus respectivos modelos
-            if (!Usuarios.isValid({ correo_usuario, contrasena, numero_identificacion, id_tipo_identificacion, nombre_usuario })) {
-                throw new Error('Datos de usuario o contraseña inválidos.');
-            }
-            if (!Direccion.isValid(direccion)) {
-                throw new Error('Datos de dirección inválidos.');
-            }
 
             // Verificar si el correo ya está registrado
             const existingUser = await Usuarios.findByEmail(correo_usuario);
@@ -49,25 +36,13 @@ class AuthService {
             // 2. Hashear la contraseña
             const hashedPassword = await bcrypt.hash(contrasena, 10); // 10 es el costo de salting
 
-            // 3. Crear la dirección primero (usando el modelo Direccion directamente)
-            const id_direccion = await Direccion.create(
-                direccion.id_tipo_via,
-                direccion.numero_via,
-                direccion.complemento,
-                direccion.barrio,
-                direccion.ciudad
-            );
-
             // 4. Crear el usuario, vinculándolo a la dirección
             const newUserId = await Usuarios.create(
-                numero_identificacion,
-                id_tipo_identificacion,
                 nombre_usuario,
                 apellido_usuario,
                 hashedPassword, // Usar la contraseña hasheada
                 correo_usuario,
-                telefono_usuario,
-                id_direccion
+                telefono_usuario
             );
 
             return newUserId;
@@ -83,7 +58,7 @@ class AuthService {
      * @param {string} password - Contraseña en texto plano.
      * @returns {Object|null} - El objeto usuario (sin contraseña) si las credenciales son válidas, o null.
      */
-    async loginUser(email, password) {
+    static loginUser = async(email, password) => {
         try {
             // Buscar el usuario por email, incluyendo la contraseña hasheada para verificación
             const user = await Usuarios.findByEmail(email, true); // Pasar true para incluir la contraseña
@@ -111,7 +86,7 @@ class AuthService {
      * @param {number} userId - ID del usuario.
      * @returns {Object|null} - El objeto usuario o null si no se encuentra.
      */
-    async getUserById(userId) {
+    static getUserById = async(userId)  => {
         try {
             const user = await Usuarios.getById(userId);
             return user;
@@ -126,7 +101,7 @@ class AuthService {
      * @param {number} userId - ID del usuario.
      * @param {string|null} refreshToken - Token de refresco o null para limpiar.
      */
-    async updateRefreshToken(userId, refreshToken) {
+    static updateRefreshToken = async(userId, refreshToken) => {
         try {
             await Usuarios.updateRefreshToken(userId, refreshToken);
         } catch (error) {
@@ -138,4 +113,4 @@ class AuthService {
     // Puedes añadir más métodos relacionados con la gestión de usuarios (actualizar perfil, etc.)
 }
 
-export default new AuthService();
+export default AuthService;

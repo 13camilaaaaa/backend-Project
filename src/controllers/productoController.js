@@ -7,7 +7,7 @@ class ProductoController {
      * @param {Object} req - Objeto de solicitud de Express.
      * @param {Object} res - Objeto de respuesta de Express.
      */
-    async getAllProducts(req, res) {
+    static getAllProducts = async(req, res) => {
         try {
             const products = await ProductService.getAllProducts();
             ResponseProvider.success(res, 200, 'Productos obtenidos exitosamente.', products);
@@ -22,7 +22,7 @@ class ProductoController {
      * @param {Object} req - Objeto de solicitud de Express.
      * @param {Object} res - Objeto de respuesta de Express.
      */
-    async getProductById(req, res) {
+    static getProductById = async(req, res)  => {
         try {
             const productId = parseInt(req.params.id);
             if (isNaN(productId)) {
@@ -45,7 +45,7 @@ class ProductoController {
      * @param {Object} req - Objeto de solicitud de Express.
      * @param {Object} res - Objeto de respuesta de Express.
      */
-    async createProduct(req, res) {
+    static createProduct = async(req, res) => {
         try {
             const productData = req.body;
             if (!productData.nombre || !productData.precio || !productData.stock || !productData.id_talla) {
@@ -65,7 +65,7 @@ class ProductoController {
      * @param {Object} req - Objeto de solicitud de Express.
      * @param {Object} res - Objeto de respuesta de Express.
      */
-    async updateProduct(req, res) {
+    static updateProduct = async(req, res) => {
         try {
             const productId = parseInt(req.params.id);
             if (isNaN(productId)) {
@@ -75,7 +75,7 @@ class ProductoController {
             const updateData = req.body;
             // Consider adding specific validation for updateData fields if needed
             if (Object.keys(updateData).length === 0) {
-                 return ResponseProvider.badRequest(res, 'No se proporcionaron datos para actualizar.');
+                return ResponseProvider.badRequest(res, 'No se proporcionaron datos para actualizar.');
             }
 
             const updatedProduct = await ProductService.updateProduct(productId, updateData);
@@ -90,12 +90,28 @@ class ProductoController {
         }
     }
 
+    
+    static getProductosByGenero = async (req, res) => {
+    try {
+        const genero = req.params.nombre;
+        const productos = await ProductService.getProductsByGenero(genero);
+        ResponseProvider.success(res, 200, 'Productos filtrados por género', productos);
+    } catch (error) {
+        console.error('[productoController] Error al obtener productos por género:', error); // <--- imprime todo el error
+        res.status(500).json({
+            success: false,
+            message: 'Error al filtrar productos por género.',
+            error: error.message || error
+        });
+    }
+};
+
     /**
      * @description Elimina un producto.
      * @param {Object} req - Objeto de solicitud de Express.
      * @param {Object} res - Objeto de respuesta de Express.
      */
-    async deleteProduct(req, res) {
+    static deleteProduct = async(req, res) =>{
         try {
             const productId = parseInt(req.params.id);
             if (isNaN(productId)) {
@@ -114,4 +130,4 @@ class ProductoController {
     }
 }
 
-export default new ProductoController();
+export default ProductoController;

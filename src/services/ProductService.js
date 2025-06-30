@@ -6,7 +6,7 @@ class ProductService {
      * @description Obtiene todos los productos de la tienda.
      * @returns {Array} - Un array de objetos de producto con detalles completos.
      */
-    async getAllProducts() {
+    static getAllProducts = async () => {
         try {
             // El modelo Producto ya realiza los JOINs necesarios
             const products = await Productos.getAll();
@@ -23,7 +23,7 @@ class ProductService {
      * @param {number} productId - El ID del producto.
      * @returns {Object|null} - El objeto de producto o null si no se encuentra.
      */
-    async getProductById(productId) {
+    static getProductById = async (productId) => {
         try {
             const product = await productos.getById(productId);
             return product;
@@ -38,7 +38,7 @@ class ProductService {
      * @param {Object} productData - Datos para el nuevo producto.
      * @returns {Object} - El objeto de producto creado.
      */
-    async createProduct(productData) {
+    static createProduct = async (productData) => {
         try {
             // Aquí podrías añadir validaciones de negocio más complejas
             // Por ejemplo, verificar si el nombre del producto ya existe (si se requiere)
@@ -63,7 +63,7 @@ class ProductService {
      * @param {Object} updateData - Datos a actualizar para el producto.
      * @returns {Object|null} - El producto actualizado o null si no se encuentra.
      */
-    async updateProduct(productId, updateData) {
+    static updateProduct = async (productId, updateData) => {
         try {
             // Aquí podrías añadir validaciones de negocio antes de actualizar
             const updatedProduct = await Productos.update(productId, updateData);
@@ -79,7 +79,7 @@ class ProductService {
      * @param {number} productId - ID del producto a eliminar.
      * @returns {boolean} - True si se eliminó, false si no se encontró.
      */
-    async deleteProduct(productId) {
+    static deleteProduct = async (productId) => {
         try {
             const isDeleted = await Productos.delete(productId);
             return isDeleted;
@@ -89,13 +89,17 @@ class ProductService {
         }
     }
 
+    static getProductsByGenero = async(genero)  => {
+    return await Productos.getByGeneroNombre(genero);
+}
+
     /**
      * @description Actualiza el stock de un producto.
      * @param {number} productId - ID del producto.
      * @param {number} quantityChange - Cantidad a añadir (positivo) o restar (negativo) del stock.
      * @returns {boolean} - True si el stock fue actualizado, false en caso contrario.
      */
-    async updateProductStock(productId, quantityChange) {
+    static updateProductStock = async (productId, quantityChange) => {
         try {
             // Primero, obtener el producto para saber el stock actual
             const product = await Productos.getById(productId);
@@ -118,4 +122,4 @@ class ProductService {
     }
 }
 
-export default new ProductService();
+export default ProductService;

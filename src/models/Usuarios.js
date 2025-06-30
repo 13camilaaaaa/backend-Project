@@ -19,7 +19,7 @@ export class Usuarios {
                 u.correo_usuario,
                 u.telefono_usuario,
                 u.fecha_registro,
-                u.refresh_token,
+                u.token_refresco,
                 ti.nombre_tipo AS tipo_identificacion_nombre,
                 d.numero_via AS direccion_numero_via,
                 d.complemento AS direccion_complemento,
@@ -64,12 +64,12 @@ export class Usuarios {
      * @param {number} id_direccion - ID de la dirección asociada al usuario.
      * @returns {number} - El ID del usuario recién creado.
      */
-    static  create = async(numero_identificacion, id_tipo_identificacion, nombre_usuario, apellido_usuario, contrasena, correo_usuario, telefono_usuario, id_direccion) => {
+    static  create = async( nombre_usuario, apellido_usuario, contrasena, correo_usuario, telefono_usuario) => {
         try {
             const [result] = await connection.query(
-                `INSERT INTO usuarios (numero_identificacion, id_tipo_identificacion, nombre_usuario, apellido_usuario, contrasena, correo_usuario, telefono_usuario, id_direccion)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-                [numero_identificacion, id_tipo_identificacion, nombre_usuario, apellido_usuario, contrasena, correo_usuario, telefono_usuario, id_direccion]
+                `INSERT INTO usuarios (nombre_usuario, apellido_usuario, contrasena, correo_usuario, telefono_usuario)
+                VALUES (?, ?, ?, ?, ?)`,
+                [nombre_usuario, apellido_usuario, contrasena, correo_usuario, telefono_usuario]
             );
             return result.insertId;
         } catch (error) {
@@ -108,7 +108,7 @@ export class Usuarios {
                 u.correo_usuario,
                 u.telefono_usuario,
                 u.fecha_registro,
-                u.refresh_token,
+                u.token_refresco,
                 ti.nombre_tipo AS tipo_identificacion_nombre,
                 d.numero_via AS direccion_numero_via,
                 d.complemento AS direccion_complemento,

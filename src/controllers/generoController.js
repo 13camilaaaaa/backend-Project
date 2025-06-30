@@ -8,7 +8,7 @@ class GeneroController {
      * @param {Object} req - Objeto de solicitud de Express.
      * @param {Object} res - Objeto de respuesta de Express.
      */
-    async getAllGeneros(req, res) {
+    static getAllGeneros = async(req, res) =>{
         try {
             const generos = await GeneroService.getAllGeneros();
             ResponseProvider.success(res, 200, 'Géneros obtenidos exitosamente.', generos);
@@ -23,7 +23,7 @@ class GeneroController {
      * @param {Object} req - Objeto de solicitud de Express.
      * @param {Object} res - Objeto de respuesta de Express.
      */
-    async getGeneroById(req, res) {
+    static getGeneroById = async(req, res) =>{
         try {
             const generoId = parseInt(req.params.id);
             if (isNaN(generoId)) {
@@ -42,4 +42,4 @@ class GeneroController {
     }
 }
 
-export default new GeneroController();
+export default GeneroController;

@@ -6,7 +6,7 @@ class Productos {
      * @description Obtiene todos los productos con los nombres descriptivos de sus atributos relacionados.
      * @returns {Array} - Un array de objetos de producto.
      */
-    async getAll() {
+    static getAll = async () => {
         try {
             const query = `
                 SELECT
@@ -47,7 +47,7 @@ class Productos {
      * @param {number} id - El ID del producto.
      * @returns {Object|null} - El objeto de producto o null si no se encuentra.
      */
-    async getById(id) {
+    static getById = async (id) => {
         try {
             const query = `
                 SELECT
@@ -96,7 +96,7 @@ class Productos {
      * @param {number} id_color - ID del color.
      * @returns {Object} - Objeto del producto creado con su ID.
      */
-    async create(nombre, descripcion, precio, stock, imagen, id_talla, id_genero, id_categoria, id_color) {
+    static create = async (nombre, descripcion, precio, stock, imagen, id_talla, id_genero, id_categoria, id_color) => {
         try {
             const [result] = await connection.query(
                 `INSERT INTO productos (nombre, descripcion, precio, stock, imagen, id_talla, id_genero, id_categoria, id_color)
@@ -127,7 +127,7 @@ class Productos {
      * @param {Object} campos - Objeto con los campos a actualizar (ej. { nombre: 'Nuevo Nombre', stock: 50 }).
      * @returns {Object|null} - Objeto con el ID y los campos actualizados, o null si no se encontró el producto.
      */
-    async update(id, campos) {
+    static update = async (id, campos) => {
         try {
             let query = 'UPDATE productos SET';
             const params = [];
@@ -149,12 +149,31 @@ class Productos {
         }
     }
 
+    static getByGeneroNombre = async(nombreGenero) => {
+        try {
+            const query = `
+            SELECT
+                p.*,
+                g.nombre_genero AS genero_nombre
+            FROM productos p
+            INNER JOIN generos g ON p.id_genero = g.id
+            WHERE g.nombre_genero = ?;
+        `;
+            const [rows] = await connection.query(query, [nombreGenero]);
+            return rows;
+        } catch (error) {
+            console.error('[Productos] Error en getByGeneroNombre:', error);
+            throw error;
+        }
+    }
+
+
     /**
      * @description Elimina un producto por su ID.
      * @param {number} id - El ID del producto a eliminar.
      * @returns {boolean} - True si la eliminación fue exitosa, false si el producto no se encontró.
      */
-    async delete(id) {
+    static delete = async (id) => {
         try {
             const [result] = await connection.query('DELETE FROM productos WHERE id = ?', [id]);
             // Devuelve true si se eliminó al menos una fila
@@ -166,4 +185,4 @@ class Productos {
     }
 }
 
-export default new Productos(); // Exporta una instancia de la clase
+export default Productos; // Exporta una instancia de la clase
