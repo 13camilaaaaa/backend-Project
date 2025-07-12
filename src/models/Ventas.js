@@ -1,18 +1,17 @@
 // src/models/Ventas.js
-import connection from '../utils/db.js'; // Asegúrate de que la ruta a tu conexión DB sea correcta
+import connection from '../utils/db.js'; // Importa el pool de conexión
 
-class Venta {
+class Ventas {
     /**
      * @description Obtiene todas las ventas/pedidos, opcionalmente con uniones para mostrar más detalles.
      * @returns {Array} - Un array de objetos de venta.
      */
     async getAll() {
         try {
-            // Ejemplo de consulta para obtener ventas con nombre de usuario y dirección de envío
             const query = `
                 SELECT
                     v.id,
-                    v.fecha,
+                    v.fecha,  -- Asegúrate de que este es el nombre de la columna para la fecha de creación
                     v.total,
                     v.estado_pedido,
                     v.metodo_pago,
@@ -99,9 +98,10 @@ class Venta {
      * @param {string} [ventaData.metodo_pago] - Método de pago.
      * @param {string} [ventaData.transaccion_id_pago] - ID de transacción de la pasarela.
      * @param {string} [ventaData.comentarios] - Comentarios adicionales.
+     * @param {Object} [conn=connection] - Conexión de la base de datos (para transacciones).
      * @returns {number} - El ID de la venta recién creada.
      */
-    async create(ventaData) {
+    async create(ventaData, conn = connection) { // Acepta 'conn' como parámetro opcional
         try {
             const {
                 id_usuario,
@@ -113,14 +113,16 @@ class Venta {
                 comentarios
             } = ventaData;
 
-            const [result] = await connection.query(
-                `INSERT INTO ventas (id_usuario, total, estado_pedido, id_direccion_envio, metodo_pago, transaccion_id_pago, comentarios)
-                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                [id_usuario, total, estado_pedido, id_direccion_envio, metodo_pago, transaccion_id_pago, comentarios]
+            // Usa la conexión proporcionada (conn) para la consulta
+            // ¡Asegúrate de que 'fecha' sea el nombre correcto de la columna en tu tabla 'ventas'!
+            const [result] = await conn.query(
+                `INSERT INTO ventas (id_usuario, total, estado_pedido, id_direccion_envio, metodo_pago, transaccion_id_pago, comentarios, fecha)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`, // <-- Añadido `fecha` con `NOW()`
+                [id_usuario, total, estado_pedido, id_direccion_envio, metodo_pago || null, transaccion_id_pago || null, comentarios || null]
             );
             return result.insertId; // Retorna el ID de la venta creada
         } catch (error) {
-            console.error('Error al crear la venta:', error);
+            console.error('Error al crear la venta en el modelo:', error);
             throw new Error('Error al crear la venta.');
         }
     }
@@ -130,45 +132,59 @@ class Venta {
      * @param {number} id - El ID de la venta a actualizar.
      * @param {string} nuevoEstado - El nuevo estado del pedido.
      * @param {string} [fechaPago] - Opcional: fecha de pago si se actualiza a un estado de pagado.
+     * @param {Object} [conn=connection] - Conexión de la base de datos (para transacciones).
      * @returns {boolean} - True si la actualización fue exitosa, false si la venta no se encontró.
      */
-    async updateStatus(id, nuevoEstado, fechaPago = null) {
+    async updateStatus(id, nuevoEstado, fechaPago = null, conn = connection) {
         try {
-            let query = 'UPDATE ventas SET estado_pedido = ?, ultima_actualizacion = NOW()'; // Asume que tienes un campo ultima_actualizacion
+            let query = 'UPDATE ventas SET estado_pedido = ?';
             const params = [nuevoEstado];
 
-            if (nuevoEstado === 'Entregado y Pagado' || fechaPago) { // O cualquier estado que implique pago
+            if (nuevoEstado === 'Entregado y Pagado' || fechaPago) {
                 query += ', fecha_pago = ?';
-                params.push(fechaPago || new Date()); // Usa la fecha proporcionada o la actual
+                params.push(fechaPago || new Date());
             }
 
             query += ' WHERE id = ?';
             params.push(id);
 
-            const [result] = await connection.query(query, params);
+            const [result] = await conn.query(query, params);
             return result.affectedRows > 0;
         } catch (error) {
-            console.error(`Error al actualizar el estado de la venta ${id}:`, error);
+            console.error(`Error al actualizar el estado de la venta ${id} en el modelo:`, error);
             throw new Error('Error al actualizar el estado de la venta.');
         }
     }
 
-    // Puedes añadir más métodos de actualización según necesites (ej. actualizar método de pago, etc.)
 
     /**
      * @description Elimina una venta/pedido por su ID.
      * @param {number} id - El ID de la venta a eliminar.
+     * @param {Object} [conn=connection] - Conexión de la base de datos (para transacciones).
      * @returns {boolean} - True si la eliminación fue exitosa, false si la venta no se encontró.
      */
-    async delete(id) {
+    async delete(id, conn = connection) { // Acepta 'conn'
         try {
-            const [result] = await connection.query('DELETE FROM ventas WHERE id = ?', [id]);
+            // Usa la conexión proporcionada (conn) para la consulta
+            const [result] = await conn.query('DELETE FROM ventas WHERE id = ?', [id]);
             return result.affectedRows > 0;
         } catch (error) {
-            console.error(`Error al eliminar la venta ${id}:`, error);
+            console.error(`Error al eliminar la venta ${id} en el modelo:`, error);
             throw new Error('Error al eliminar la venta.');
         }
     }
+
+    async getVentasByUsuarioId(id_usuario) {
+        const [rows] = await connection.query(`
+    SELECT id, fecha, total, estado_pedido
+    FROM ventas
+    WHERE id_usuario = ?
+    ORDER BY fecha DESC
+`, [id_usuario]);
+
+        return rows;
+    }
+
 }
 
-export default new Venta(); // Exporta una instancia de la clase
+export default new Ventas(); // Exporta una instancia de la clase

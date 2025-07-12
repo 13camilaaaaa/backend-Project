@@ -1,5 +1,8 @@
 import VentaService from '../services/VentaService.js';
 import ResponseProvider from '../providers/ResponseProvider.js'; // Importa tu ResponseProvider
+import  Ventas  from '../models/Ventas.js';
+import  DetalleVenta  from '../models/DetalleVenta.js'; // si usas esto también
+
 
 class VentaController {
     /**
@@ -119,6 +122,42 @@ class VentaController {
         } catch (error) {
             console.error(`[ventaController] Error al eliminar venta ${req.params.id}:`, error.message);
             ResponseProvider.internalError(res, 'Error interno del servidor al eliminar la venta.');
+        }
+    }
+
+    async getVentasDelUsuario (req, res) {
+        try {
+            const id_usuario = req.user.id;
+            console.log("Usuario autenticado:", req.user);
+
+            // Obtener todas las ventas de ese usuario
+            const ventas = await Ventas.getVentasByUsuarioId(id_usuario);
+
+            // Para cada venta, obtener su detalle
+            const ventasConDetalle = await Promise.all(ventas.map(async venta => {
+                const detalle = await DetalleVenta.getDetallesByVentaId(venta.id);
+
+                return {
+                    ...venta,
+                    detalle: detalle.map(d => ({
+                        nombre: d.nombre_producto, // asegúrate que lo devuelva tu JOIN
+                        cantidad: d.cantidad,
+                        precio_unitario: d.precio_unitario
+                    }))
+                };
+            }));
+
+            res.json({
+                success: true,
+                pedidos: ventasConDetalle
+            });
+
+        } catch (error) {
+            console.error("Error al obtener pedidos del usuario:", error);
+            res.status(500).json({
+                success: false,
+                message: "Error al obtener tus pedidos."
+            });
         }
     }
 }

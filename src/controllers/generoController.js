@@ -8,7 +8,7 @@ class GeneroController {
      * @param {Object} req - Objeto de solicitud de Express.
      * @param {Object} res - Objeto de respuesta de Express.
      */
-    static getAllGeneros = async(req, res) =>{
+    static getAllGeneros = async(req, res) =>{  
         try {
             const generos = await GeneroService.getAllGeneros();
             ResponseProvider.success(res, 200, 'Géneros obtenidos exitosamente.', generos);

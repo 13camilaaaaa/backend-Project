@@ -9,8 +9,8 @@ const router = Router();
 
 // Rutas públicas para ver productos (no necesitan autenticación/validación específica de ruta)
 router.get('/', productoController.getAllProducts);
-router.get('/:id', productoValidation.getById, productoController.getProductById); // Valida el ID del parámetro
 router.get('/genero/:nombre', productoController.getProductosByGenero);
+router.get('/:id', productoValidation.getById, productoController.getProductById); // Valida el ID del parámetro
  // Obtiene productos por género
 
 // Rutas protegidas que requieren autenticación y rol de 'admin'

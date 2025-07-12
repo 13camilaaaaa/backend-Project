@@ -29,6 +29,12 @@ import tiposIdentificacionRoutes from './src/routes/tiposIdentificacionRoutes.js
 import tiposViaRoutes from './src/routes/tiposViaRoutes.js';
 import rolesRoutes from './src/routes/rolesRoutes.js';
 import globalErrorMiddleware from './src/middlewares/globalErrorMiddleware.js';
+import usuariosRoutes from './src/routes/usuariosRoutes.js';
+import paisesRoutes from './src/routes/paisesRoutes.js';
+import departamentosRoutes from './src/routes/departamentosRoutes.js';
+import ciudadesRoutes from './src/routes/ciudadesRoutes.js';
+import cartRoutes from './src/routes/cartRoutes.js';
+
 
 // Carga las variables de entorno desde el archivo .env
 dotenv.config();
@@ -89,6 +95,12 @@ app.use('/api/tallas', tallasRoutes); // Rutas para tallas
 app.use('/api/tipos-identificacion', tiposIdentificacionRoutes); // Rutas para tipos de identificación
 app.use('/api/tipos-via', tiposViaRoutes); // Rutas para tipos de vía
 app.use('/api/roles', rolesRoutes); // Rutas para roles y asignación de roles
+app.use('/api/usuarios', usuariosRoutes); 
+app.use('/api/paises', paisesRoutes);
+app.use('/api/departamentos', departamentosRoutes);
+app.use('/api/ciudades', ciudadesRoutes);
+app.use('/api', usuariosRoutes);
+app.use('/api/carrito', cartRoutes);
 
 // 5. Ruta Raíz (opcional, para verificar que el servidor funciona)
 app.get('/', (req, res) => {

@@ -1,5 +1,7 @@
 import ProductService from '../services/ProductService.js';
 import ResponseProvider from '../providers/ResponseProvider.js'; // Importa tu ResponseProvider
+import db from '../utils/db.js'; // ajusta la ruta si es necesario
+import Productos from '../models/Productos.js'; 
 
 class ProductoController {
     /**
@@ -7,7 +9,7 @@ class ProductoController {
      * @param {Object} req - Objeto de solicitud de Express.
      * @param {Object} res - Objeto de respuesta de Express.
      */
-    static getAllProducts = async(req, res) => {
+    static getAllProducts = async (req, res) => {
         try {
             const products = await ProductService.getAllProducts();
             ResponseProvider.success(res, 200, 'Productos obtenidos exitosamente.', products);
@@ -22,21 +24,30 @@ class ProductoController {
      * @param {Object} req - Objeto de solicitud de Express.
      * @param {Object} res - Objeto de respuesta de Express.
      */
-    static getProductById = async(req, res)  => {
+    static getProductById = async (req, res) => {
         try {
-            const productId = parseInt(req.params.id);
-            if (isNaN(productId)) {
-                return ResponseProvider.badRequest(res, 'ID de producto inválido.');
+            const { id } = req.params;
+
+            const producto = await Productos.getById(id); // 👈 aquí usamos tu método con los JOIN
+
+            if (!producto) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Producto no encontrado'
+                });
             }
 
-            const product = await ProductService.getProductById(productId);
-            if (!product) {
-                return ResponseProvider.notFound(res, 'Producto no encontrado.');
-            }
-            ResponseProvider.success(res, 200, 'Producto obtenido exitosamente.', product);
+            res.json({
+                success: true,
+                data: producto
+            });
         } catch (error) {
-            console.error(`[productoController] Error al obtener producto ${req.params.id}:`, error.message);
-            ResponseProvider.internalError(res, 'Error interno del servidor al obtener el producto.');
+            console.error('Error en getProductById:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error interno del servidor al obtener el producto.',
+                error: error.message
+            });
         }
     }
 
@@ -45,7 +56,7 @@ class ProductoController {
      * @param {Object} req - Objeto de solicitud de Express.
      * @param {Object} res - Objeto de respuesta de Express.
      */
-    static createProduct = async(req, res) => {
+    static createProduct = async (req, res) => {
         try {
             const productData = req.body;
             if (!productData.nombre || !productData.precio || !productData.stock || !productData.id_talla) {
@@ -65,7 +76,7 @@ class ProductoController {
      * @param {Object} req - Objeto de solicitud de Express.
      * @param {Object} res - Objeto de respuesta de Express.
      */
-    static updateProduct = async(req, res) => {
+    static updateProduct = async (req, res) => {
         try {
             const productId = parseInt(req.params.id);
             if (isNaN(productId)) {
@@ -90,28 +101,28 @@ class ProductoController {
         }
     }
 
-    
+
     static getProductosByGenero = async (req, res) => {
-    try {
-        const genero = req.params.nombre;
-        const productos = await ProductService.getProductsByGenero(genero);
-        ResponseProvider.success(res, 200, 'Productos filtrados por género', productos);
-    } catch (error) {
-        console.error('[productoController] Error al obtener productos por género:', error); // <--- imprime todo el error
-        res.status(500).json({
-            success: false,
-            message: 'Error al filtrar productos por género.',
-            error: error.message || error
-        });
-    }
-};
+        try {
+            const genero = req.params.nombre;
+            const productos = await ProductService.getProductsByGenero(genero);
+            ResponseProvider.success(res, 200, 'Productos filtrados por género', productos);
+        } catch (error) {
+            console.error('[productoController] Error al obtener productos por género:', error); // <--- imprime todo el error
+            res.status(500).json({
+                success: false,
+                message: 'Error al filtrar productos por género.',
+                error: error.message || error
+            });
+        }
+    };
 
     /**
      * @description Elimina un producto.
      * @param {Object} req - Objeto de solicitud de Express.
      * @param {Object} res - Objeto de respuesta de Express.
      */
-    static deleteProduct = async(req, res) =>{
+    static deleteProduct = async (req, res) => {
         try {
             const productId = parseInt(req.params.id);
             if (isNaN(productId)) {

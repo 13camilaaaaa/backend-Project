@@ -1,9 +1,9 @@
 // src/services/VentaService.js
-import connection from '../utils/db.js'; // Importa la conexión directa para manejar transacciones
-import VentaModel from '../models/Ventas.js'; // Importa el modelo Ventas
-import DetalleVentaModel from '../models/DetalleVenta.js'; // Importa el modelo DetalleVenta
-import Productos from '../models/Productos.js'; // Para actualizar el stock
-
+import connection from '../utils/db.js';
+import Ventas from '../models/Ventas.js';
+import DetalleVenta from '../models/DetalleVenta.js';
+import Productos from '../models/Productos.js';
+import Carrito from '../models/Carrito.js';
 class VentaService {
     /**
      * @description Crea un nuevo pedido/venta, incluyendo sus detalles y actualizando el stock.
@@ -14,91 +14,107 @@ class VentaService {
      * @param {string} orderData.metodo_pago - Método de pago.
      * @param {string} [orderData.transaccion_id_pago] - ID de la transacción de la pasarela de pago (si aplica).
      * @param {string} [orderData.comentarios] - Comentarios adicionales del pedido.
-     * @param {Array<Object>} orderData.productos - Array de objetos de producto en el carrito (ej. [{id: 1, cantidad: 2}, ...])
+     * @param {Array<Object>} orderData.productos - Array de objetos de producto en el carrito (ej. [{id_producto: 1, cantidad: 2, precio_unitario: 100}, ...])
      * @returns {Object} - El ID de la venta creada y el total final.
      * @throws {Error} - Lanza un error si la transacción falla o el stock es insuficiente.
      */
     async createOrder(orderData) {
-        let transactionConnection; // Variable para la conexión de la transacción
+        let transactionConnection;
         try {
-            // Desestructura los datos del pedido
             const { id_usuario, id_direccion_envio, metodo_pago, transaccion_id_pago, comentarios, productos } = orderData;
 
+            if (!id_usuario) {
+                throw new Error('ID de usuario es obligatorio para crear el pedido.');
+            }
             if (!productos || productos.length === 0) {
-                throw new Error('El pedido no contiene productos.');
+                throw new Error('El pedido debe contener al menos un producto.');
+            }
+            if (!id_direccion_envio) {
+                throw new Error('La dirección de envío es obligatoria.');
+            }
+            if (!metodo_pago) {
+                throw new Error('El método de pago es obligatorio.');
             }
 
-            // Obtener una conexión del pool para la transacción
             transactionConnection = await connection.getConnection();
-            await transactionConnection.beginTransaction(); // Iniciar la transacción
+            await transactionConnection.beginTransaction();
 
             let totalVenta = 0;
-            const detailedProducts = []; // Para almacenar info completa de los productos comprados
+            const detailedProductsForOrder = [];
 
-            // 1. Validar stock y calcular el total de la venta
             for (const item of productos) {
-                const productDb = await Productos.getById(item.id);
+                const productDb = await Productos.getById(item.id_producto);
 
                 if (!productDb) {
-                    throw new Error(`Producto con ID ${item.id} no encontrado.`);
+                    throw new Error(`Producto con ID ${item.id_producto} no encontrado.`);
                 }
                 if (productDb.stock < item.cantidad) {
                     throw new Error(`Stock insuficiente para el producto: ${productDb.nombre}. Disponible: ${productDb.stock}, Solicitado: ${item.cantidad}`);
                 }
 
-                // Guardar la información completa del producto y el precio unitario en el momento de la compra
-                detailedProducts.push({
-                    ...productDb, // Copia todas las propiedades del producto
+                console.log("item recibido del frontend:", item);
+
+                detailedProductsForOrder.push({
+                    id_producto: item.id_producto,
                     cantidad_comprada: item.cantidad,
-                    precio_unitario_venta: productDb.precio // Precio en el momento de la venta
+                    precio_unitario_venta: item.precio_unitario || productDb.precio,
+                    talla: item.talla || item.talla_nombre_al_momento || null,
+                    color: item.color || item.color_nombre_al_momento || null
                 });
                 totalVenta += productDb.precio * item.cantidad;
             }
-
             // 2. Crear la venta (cabecera del pedido)
-            const ventaId = await VentaModel.create(
+            // Usamos 'Ventas' que es el nombre de la importación
+            const ventaId = await Ventas.create(
                 {
                     id_usuario,
                     total: totalVenta,
-                    estado_pedido: 'Pendiente', // Estado inicial
+                    estado_pedido: 'Pendiente',
                     id_direccion_envio,
                     metodo_pago,
                     transaccion_id_pago,
                     comentarios
-                }
+                },
+                transactionConnection
             );
 
-            // 3. Insertar detalles de venta y actualizar stock
-            for (const item of detailedProducts) {
-                // Insertar en detalle_venta
-                await DetalleVentaModel.create(
+            for (const item of detailedProductsForOrder) {
+                await DetalleVenta.create(
                     ventaId,
-                    item.id,
+                    item.id_producto,
                     item.cantidad_comprada,
                     item.precio_unitario_venta,
-                    item.talla_nombre, // Usar el nombre que viene con el JOIN del modelo Producto
-                    item.color_nombre  // Ídem
+                    item.talla,
+                    item.color,
+                    transactionConnection
                 );
 
-                // Actualizar stock del producto
-                await ProductoModel.updateStock(item.id, -item.cantidad_comprada); // Restar la cantidad comprada
+                await Productos.updateStock(item.id_producto, -item.cantidad_comprada, transactionConnection);
             }
 
-            // Si todo lo anterior fue exitoso, confirmar la transacción
+            // 4. Eliminar productos del carrito del usuario
+            const carritoUsuario = await Carrito.obtenerCarritoActivo(id_usuario);
+            const carritoId = carritoUsuario ? carritoUsuario.id : null;
+
+            if (carritoId) {
+                // <-- ¡CAMBIO AQUÍ! Usamos la nueva función del modelo Carrito
+                await Carrito.deleteItemsByCarritoId(carritoId, transactionConnection);
+                // <-- ¡CAMBIO AQUÍ! Usamos la función delete del modelo Carrito
+                await Carrito.delete(carritoId, transactionConnection);
+            }
+
             await transactionConnection.commit();
-            console.log(`Venta ${ventaId} creada exitosamente y stock actualizado.`);
+            console.log(`Venta ${ventaId} creada exitosamente, stock actualizado y carrito vaciado.`);
             return { ventaId, totalVenta };
 
         } catch (error) {
-            // Si ocurre algún error, revertir la transacción
             if (transactionConnection) {
                 await transactionConnection.rollback();
                 console.error('Transacción de venta revertida debido a un error.');
             }
             console.error('[VentaService] Error al crear pedido:', error.message);
-            throw error; // Propaga el error al controlador
+            throw error;
         } finally {
-            // Siempre liberar la conexión al pool
             if (transactionConnection) {
                 transactionConnection.release();
             }
@@ -111,7 +127,7 @@ class VentaService {
      */
     async getAllVentas() {
         try {
-            const ventas = await VentaModel.getAll();
+            const ventas = await Ventas.getAll(); // Usamos 'Ventas'
             return ventas;
         } catch (error) {
             console.error('[VentaService] Error al obtener todas las ventas:', error.message);
@@ -126,13 +142,12 @@ class VentaService {
      */
     async getVentaById(ventaId) {
         try {
-            const venta = await VentaModel.getById(ventaId);
+            const venta = await Ventas.getById(ventaId); // Usamos 'Ventas'
             if (!venta) {
                 return null;
             }
-            // Obtener los detalles de los productos en esta venta
-            const detalles = await DetalleVentaModel.getByVentaId(ventaId);
-            venta.productos = detalles; // Añadir los productos como una propiedad de la venta
+            const detalles = await DetalleVenta.getByVentaId(ventaId); // Usamos 'DetalleVenta'
+            venta.productos = detalles;
             return venta;
         } catch (error) {
             console.error(`[VentaService] Error al obtener venta con ID ${ventaId}:`, error.message);
@@ -149,7 +164,7 @@ class VentaService {
      */
     async updateVentaStatus(ventaId, newStatus, fechaPago = null) {
         try {
-            const isUpdated = await VentaModel.updateStatus(ventaId, newStatus, fechaPago);
+            const isUpdated = await Ventas.updateStatus(ventaId, newStatus, fechaPago); // Usamos 'Ventas'
             return isUpdated;
         } catch (error) {
             console.error(`[VentaService] Error al actualizar estado de venta ${ventaId}:`, error.message);
@@ -164,7 +179,7 @@ class VentaService {
      */
     async deleteVenta(ventaId) {
         try {
-            const isDeleted = await VentaModel.delete(ventaId);
+            const isDeleted = await Ventas.delete(ventaId); // Usamos 'Ventas'
             return isDeleted;
         } catch (error) {
             console.error(`[VentaService] Error al eliminar venta con ID ${ventaId}:`, error.message);

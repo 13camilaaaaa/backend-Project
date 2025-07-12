@@ -6,9 +6,9 @@
     // Configuración de la conexión a la base de datos
     const dbConfig = {
         host: process.env.DB_HOST || 'localhost',
-        user: process.env.DB_USER || 'root',
+        user: process.env.DB_USER || 'project',
         password: process.env.DB_PASSWORD || 'fullstack2025', // Tu contraseña de MySQL
-        database: process.env.DB_NAME || 'project', // El nombre de tu base de datos
+        database: process.env.DB_NAME || 'project_prototype', // El nombre de tu base de datos
         waitForConnections: true, // Esperar si no hay conexiones disponibles
         connectionLimit: 10,      // Número máximo de conexiones en el pool
         queueLimit: 0             // Cola de conexiones ilimitada (0)

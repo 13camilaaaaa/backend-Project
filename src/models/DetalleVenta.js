@@ -12,11 +12,11 @@ class DetalleVenta {
      * @param {string} [color_seleccionado] - Color del producto comprado.
      * @returns {number} - El ID del detalle de venta creado.
      */
-    async create(venta_id, producto_id, cantidad, precio_unitario, talla_seleccionada = null, color_seleccionado = null) {
+    async create(venta_id, producto_id, cantidad, precio_unitario, talla_seleccionada = null, color_seleccionado = null, conn) {
         try {
-            const [result] = await connection.query(
+            const [result] = await conn.query(
                 `INSERT INTO detalle_venta (venta_id, producto_id, cantidad, precio_unitario, talla_seleccionada, color_seleccionado)
-                VALUES (?, ?, ?, ?, ?, ?)`,
+            VALUES (?, ?, ?, ?, ?, ?)`,
                 [venta_id, producto_id, cantidad, precio_unitario, talla_seleccionada, color_seleccionado]
             );
             return result.insertId;
@@ -58,10 +58,16 @@ class DetalleVenta {
         }
     }
 
-    // Normalmente, no se actualiza ni elimina un detalle de venta individualmente,
-    // se gestiona a través de la venta principal (ej. si se cancela la venta,
-    // se eliminan todos sus detalles automáticamente por ON DELETE CASCADE).
-    // Sin embargo, si tu lógica de negocio lo requiere, podrías añadir métodos aquí.
+    async getDetallesByVentaId(id_venta) {
+        const [rows] = await connection.query(`
+        SELECT dv.cantidad, dv.precio_unitario, p.nombre AS nombre_producto
+        FROM detalle_venta dv
+        JOIN productos p ON p.id = dv.producto_id
+        WHERE dv.venta_id = ?
+    `, [id_venta]);
+        return rows;
+    }
+
 }
 
 export default new DetalleVenta(); // Exporta una instancia de la clase

@@ -2,7 +2,8 @@
 import jwt from 'jsonwebtoken'; // Importa la librería jsonwebtoken
 import ResponseProvider from '../../providers/ResponseProvider.js'; // Importa ResponseProvider
 
-const JWT_SECRET = process.env.JWT_SECRET; // Se obtiene de las variables de entorno
+const JWT_SECRET = process.env.ACCESS_TOKEN_SECRET;
+ // Se obtiene de las variables de entorno
 
 /**
  * @description Middleware para verificar la autenticación del usuario mediante un token JWT.

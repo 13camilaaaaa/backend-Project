@@ -110,7 +110,19 @@ class AuthService {
         }
     }
 
-    // Puedes añadir más métodos relacionados con la gestión de usuarios (actualizar perfil, etc.)
+    static actualizarContrasena = async (id, nuevaContrasenaPlano) => {
+    try {
+        const hashedPassword = await bcrypt.hash(nuevaContrasenaPlano, 10); // encripta la nueva contraseña
+
+        const resultado = await Usuarios.actualizarContrasena(id, hashedPassword);
+
+        return resultado; // true si se actualizó, false si no se encontró el usuario
+    } catch (error) {
+        console.error("[AuthService] Error al actualizar la contraseña:", error.message);
+        throw error;
+    }
+};
+
 }
 
 export default AuthService;

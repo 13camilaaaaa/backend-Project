@@ -183,6 +183,20 @@ class Productos {
             throw new Error('Error al eliminar el producto.'); // Lanza un error al controlador
         }
     }
+
+        static updateStock = async (productoId, cantidadCambio, conn) => {
+        try {
+            const [result] = await conn.query(
+                `UPDATE productos SET stock = stock + ? WHERE id = ?`,
+                [cantidadCambio, productoId]
+            );
+            return result.affectedRows > 0;
+        } catch (error) {
+            console.error(`Error al actualizar stock del producto ${productoId}:`, error);
+            throw new Error('Error al actualizar el stock del producto.');
+        }
+    }
+
 }
 
 export default Productos; // Exporta una instancia de la clase

@@ -15,7 +15,7 @@ class Direccion {
         try {
             const [result] = await connection.query(
                 `INSERT INTO direcciones (id_tipo_via, numero_via, complemento, barrio, ciudad)
-                 VALUES (?, ?, ?, ?, ?)`,
+                VALUES (?, ?, ?, ?, ?)`,
                 [id_tipo_via, numero_via, complemento, barrio, ciudad]
             );
             return result.insertId;
