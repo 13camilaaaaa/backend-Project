@@ -29,11 +29,6 @@ class Generos {
             throw new Error('Error al obtener el género.');
         }
     }
-
-    // Opcional: Métodos para crear, actualizar, eliminar géneros si tu aplicación lo requiere
-    // async create(nombre_genero) { ... }
-    // async update(id, nombre_genero) { ... }
-    // async delete(id) { ... }
 }
 
 export default new Generos();

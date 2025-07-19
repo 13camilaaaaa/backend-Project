@@ -1,8 +1,6 @@
 import { Router } from 'express';
-import ventaController from '../controllers/ventaController.js'; // Importa tu controlador de ventas
+import ventaController from '../controllers/ventaController.js';
 import verifyToken from '../middlewares/auth/verifyAuth.js';
-
-
 
 const router = Router();
 
@@ -12,7 +10,6 @@ router.get('/mis-pedidos', verifyToken, ventaController.getVentasDelUsuario);
 router.get('/', ventaController.getAllVentas);          // Obtener todas las ventas (útil para administración)
 router.get('/:id', ventaController.getVentaById);       // Obtener una venta por ID con sus detalles
 router.put('/:id/status', ventaController.updateVentaStatus); // Actualizar el estado de una venta
-router.delete('/:id', ventaController.deleteVenta);     // Eliminar una venta (CUIDADO con esto en producción)
+router.delete('/:id', ventaController.deleteVenta);     // Eliminar una venta
 
-// Exporta el router
 export default router;

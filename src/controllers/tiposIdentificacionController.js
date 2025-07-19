@@ -1,6 +1,5 @@
-
 import TiposIdentificacionService from '../services/TiposIdentificacionService.js';
-import ResponseProvider from '../providers/ResponseProvider.js'; // Importa tu ResponseProvider
+import ResponseProvider from '../providers/ResponseProvider.js';
 
 class TiposIdentificacionController {
     /**
@@ -29,7 +28,6 @@ class TiposIdentificacionController {
             if (isNaN(tipoId)) {
                 return ResponseProvider.badRequest(res, 'ID de tipo de identificación inválido.');
             }
-
             const tipo = await TiposIdentificacionService.getTipoIdentificacionById(tipoId);
             if (!tipo) {
                 return ResponseProvider.notFound(res, 'Tipo de identificación no encontrado.');
@@ -41,5 +39,4 @@ class TiposIdentificacionController {
         }
     }
 }
-
 export default new TiposIdentificacionController();

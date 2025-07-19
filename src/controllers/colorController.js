@@ -1,5 +1,5 @@
 import ColorService from '../services/ColorService.js';
-import ResponseProvider from '../providers/ResponseProvider.js'; // Importa tu ResponseProvider
+import ResponseProvider from '../providers/ResponseProvider.js';
 
 class ColorController {
     /**
@@ -40,5 +40,4 @@ class ColorController {
         }
     }
 }
-
 export default new ColorController();

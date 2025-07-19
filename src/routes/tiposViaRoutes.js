@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import tiposViaController from '../controllers/tiposViaController.js'; // Importa tu controlador
+import tiposViaController from '../controllers/tiposViaController.js';
 
 const router = Router();
 
@@ -7,5 +7,4 @@ const router = Router();
 router.get('/', tiposViaController.getAllTiposVia);    // Obtener todos los tipos
 router.get('/:id', tiposViaController.getTipoViaById); // Obtener un tipo por ID
 
-// Exporta el router
 export default router;

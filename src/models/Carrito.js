@@ -43,8 +43,6 @@ class Carrito {
         );
     };
 
-    // --- NUEVAS FUNCIONES ---
-
     static actualizarCantidadItemCarrito = async (id_item_carrito, nuevaCantidad) => {
         await connection.query(
             `UPDATE items_carrito SET cantidad = ? WHERE id = ?`,
@@ -88,7 +86,6 @@ class Carrito {
         return rows[0] || null;
     };
 
-    // Añade esta nueva función para eliminar todos los ítems de un carrito por su ID
     static deleteItemsByCarritoId = async (id_carrito, dbConnection = connection) => {
         await dbConnection.query(
             `DELETE FROM items_carrito WHERE id_carrito = ?`,

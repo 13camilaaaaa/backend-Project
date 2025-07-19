@@ -1,5 +1,4 @@
-// src/services/DireccionService.js
-import Direccion from '../models/Direccion.js'; // Importa el modelo Direccion
+import Direccion from '../models/Direccion.js';
 
 class DireccionService {
     /**
@@ -9,7 +8,6 @@ class DireccionService {
      */
     async createAddress(direccionData) {
         try {
-            // Aquí podrías añadir validaciones de negocio adicionales para la dirección
             const { id_tipo_via, numero_via, complemento, barrio, ciudad } = direccionData;
             const newAddressId = await Direccion.create(id_tipo_via, numero_via, complemento, barrio, ciudad);
             return newAddressId;
@@ -33,8 +31,6 @@ class DireccionService {
             throw error;
         }
     }
-
-    // Puedes añadir métodos para actualizar o eliminar direcciones si los modelos los tienen
 }
 
 export default new DireccionService();

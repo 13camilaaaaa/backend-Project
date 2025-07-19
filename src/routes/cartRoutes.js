@@ -13,12 +13,6 @@ router.post('/agregar', verifyAuth, CarritoController.agregarAlCarrito);
 router.put('/actualizar-cantidad', verifyAuth, CarritoController.actualizarCantidadCarrito);
 
 // Ruta para eliminar un item específico del carrito
-// Se recomienda usar DELETE y pasar el ID en el cuerpo o en la URL
-router.delete('/eliminar', verifyAuth, CarritoController.eliminarItemDelCarrito); 
-// Alternativa para DELETE: router.delete('/:id_item_carrito', verifyAuth, CarritoController.eliminarItemDelCarrito);
-// Si usas el id en la URL, cambia req.body.id_item_carrito por req.params.id_item_carrito en el controlador
-
-// Ruta para limpiar/vaciar todo el carrito (Opcional)
-// router.delete('/limpiar', verifyAuth, CarritoController.limpiarCarrito);
+router.delete('/eliminar', verifyAuth, CarritoController.eliminarItemDelCarrito);
 
 export default router;

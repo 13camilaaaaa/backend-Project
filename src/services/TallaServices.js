@@ -1,5 +1,4 @@
-// src/services/TallaService.js
-import Tallas from '../models/Tallas.js'; // Importa el modelo Tallas
+import Tallas from '../models/Tallas.js';
 
 class TallaService {
     /**
@@ -30,17 +29,6 @@ class TallaService {
             throw error;
         }
     }
-
-    // Opcional: Métodos para crear, actualizar, eliminar tallas si tu aplicación lo requiere
-    // async createTalla(nombre) {
-    //     try {
-    //         const newTalla = await Tallas.create(nombre);
-    //         return newTalla;
-    //     } catch (error) {
-    //         console.error('[TallaService] Error al crear talla:', error.message);
-    //         throw error;
-    //     }
-    // }
 }
 
 export default new TallaService();

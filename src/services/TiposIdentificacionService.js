@@ -1,5 +1,4 @@
-// src/services/TiposIdentificacionService.js
-import TiposIdentificacion from '../models/TiposIdentificacion.js'; // Importa el modelo TiposIdentificacion
+import TiposIdentificacion from '../models/TiposIdentificacion.js';
 
 class TiposIdentificacionService {
     /**

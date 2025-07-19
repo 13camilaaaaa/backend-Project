@@ -1,6 +1,5 @@
 import ProductService from '../services/ProductService.js';
-import ResponseProvider from '../providers/ResponseProvider.js'; // Importa tu ResponseProvider
-import db from '../utils/db.js'; // ajusta la ruta si es necesario
+import ResponseProvider from '../providers/ResponseProvider.js';
 import Productos from '../models/Productos.js'; 
 
 class ProductoController {
@@ -28,7 +27,7 @@ class ProductoController {
         try {
             const { id } = req.params;
 
-            const producto = await Productos.getById(id); // 👈 aquí usamos tu método con los JOIN
+            const producto = await Productos.getById(id);
 
             if (!producto) {
                 return res.status(404).json({
@@ -84,7 +83,6 @@ class ProductoController {
             }
 
             const updateData = req.body;
-            // Consider adding specific validation for updateData fields if needed
             if (Object.keys(updateData).length === 0) {
                 return ResponseProvider.badRequest(res, 'No se proporcionaron datos para actualizar.');
             }
@@ -108,7 +106,7 @@ class ProductoController {
             const productos = await ProductService.getProductsByGenero(genero);
             ResponseProvider.success(res, 200, 'Productos filtrados por género', productos);
         } catch (error) {
-            console.error('[productoController] Error al obtener productos por género:', error); // <--- imprime todo el error
+            console.error('[productoController] Error al obtener productos por género:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error al filtrar productos por género.',
@@ -140,5 +138,4 @@ class ProductoController {
         }
     }
 }
-
 export default ProductoController;

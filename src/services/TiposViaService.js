@@ -1,5 +1,4 @@
-// src/services/TiposViaService.js
-import TiposVia from '../models/TiposVia.js'; // Importa el modelo TiposVia
+import TiposVia from '../models/TiposVia.js';
 
 class TiposViaService {
     /**

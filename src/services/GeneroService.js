@@ -1,5 +1,4 @@
-// src/services/GeneroService.js
-import Generos from '../models/Generos.js'; // Importa el modelo Generos
+import Generos from '../models/Generos.js';
 
 class GeneroService {
     /**
@@ -30,8 +29,6 @@ class GeneroService {
             throw error;
         }
     }
-
-    // Opcional: Métodos para crear, actualizar, eliminar géneros si tu aplicación lo requiere
 }
 
 export default new GeneroService();

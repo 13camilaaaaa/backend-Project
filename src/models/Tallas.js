@@ -29,11 +29,6 @@ class Tallas {
             throw new Error('Error al obtener la talla.');
         }
     }
-
-    // Opcional: Métodos para crear, actualizar, eliminar tallas si tu aplicación lo requiere
-    // async create(nombre_talla) { ... }
-    // async update(id, nombre_talla) { ... }
-    // async delete(id) { ... }
 }
 
 export default new Tallas();

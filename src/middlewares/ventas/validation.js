@@ -1,4 +1,3 @@
-// src/middlewares/ventas/validation.js
 import { body, param, check, validationResult } from 'express-validator';
 import ResponseProvider from '../../providers/ResponseProvider.js';
 
@@ -14,7 +13,6 @@ const validate = (req, res, next) => {
 };
 
 const createOrderValidationRules = [
-    // id_usuario puede ser null para invitados, pero si se proporciona, debe ser un número
     body('id_usuario').optional().isInt({ min: 1 }).withMessage('El ID de usuario debe ser un número entero válido si se proporciona.'),
     body('id_direccion_envio').isInt({ min: 1 }).withMessage('El ID de la dirección de envío es obligatorio y debe ser un número entero válido.'),
     body('metodo_pago').trim().notEmpty().withMessage('El método de pago es obligatorio.'),
@@ -43,5 +41,5 @@ export const ventaValidation = {
     create: [createOrderValidationRules, validate],
     getById: [getVentaByIdValidationRules, validate],
     updateStatus: [updateVentaStatusValidationRules, validate],
-    delete: [getVentaByIdValidationRules, validate], // Reutilizamos para la validación del ID
+    delete: [getVentaByIdValidationRules, validate],
 };

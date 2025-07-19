@@ -1,9 +1,7 @@
 import VentaService from '../services/VentaService.js';
-import ResponseProvider from '../providers/ResponseProvider.js'; // Importa tu ResponseProvider
+import ResponseProvider from '../providers/ResponseProvider.js';
 import  Ventas  from '../models/Ventas.js';
-import  DetalleVenta  from '../models/DetalleVenta.js'; // si usas esto también
-
-
+import  DetalleVenta  from '../models/DetalleVenta.js';
 class VentaController {
     /**
      * @description Crea un nuevo pedido/venta.
@@ -13,16 +11,13 @@ class VentaController {
     async createOrder(req, res) {
         try {
             const orderData = req.body;
-
             if (!orderData.productos || orderData.productos.length === 0) {
                 return ResponseProvider.badRequest(res, 'El pedido debe contener al menos un producto.');
             }
             if (!orderData.id_direccion_envio || !orderData.metodo_pago) {
                 return ResponseProvider.badRequest(res, 'Faltan datos obligatorios para crear el pedido (dirección de envío, método de pago).');
             }
-
             const result = await VentaService.createOrder(orderData);
-
             ResponseProvider.success(res, 201, 'Pedido creado exitosamente.', {
                 ventaId: result.ventaId,
                 totalVenta: result.totalVenta
@@ -62,7 +57,6 @@ class VentaController {
             if (isNaN(ventaId)) {
                 return ResponseProvider.badRequest(res, 'ID de venta inválido.');
             }
-
             const venta = await VentaService.getVentaById(ventaId);
             if (!venta) {
                 return ResponseProvider.notFound(res, 'Venta/Pedido no encontrado.');
@@ -85,12 +79,10 @@ class VentaController {
             if (isNaN(ventaId)) {
                 return ResponseProvider.badRequest(res, 'ID de venta inválido.');
             }
-
             const { estado_pedido, fecha_pago } = req.body;
             if (!estado_pedido) {
                 return ResponseProvider.badRequest(res, 'Se requiere el campo "estado_pedido" para actualizar.');
             }
-
             const isUpdated = await VentaService.updateVentaStatus(ventaId, estado_pedido, fecha_pago);
             if (!isUpdated) {
                 return ResponseProvider.notFound(res, 'Venta/Pedido no encontrado para actualizar estado.');
@@ -113,7 +105,6 @@ class VentaController {
             if (isNaN(ventaId)) {
                 return ResponseProvider.badRequest(res, 'ID de venta inválido.');
             }
-
             const isDeleted = await VentaService.deleteVenta(ventaId);
             if (!isDeleted) {
                 return ResponseProvider.notFound(res, 'Venta/Pedido no encontrado para eliminar.');
@@ -129,29 +120,24 @@ class VentaController {
         try {
             const id_usuario = req.user.id;
             console.log("Usuario autenticado:", req.user);
-
             // Obtener todas las ventas de ese usuario
             const ventas = await Ventas.getVentasByUsuarioId(id_usuario);
-
             // Para cada venta, obtener su detalle
             const ventasConDetalle = await Promise.all(ventas.map(async venta => {
                 const detalle = await DetalleVenta.getDetallesByVentaId(venta.id);
-
                 return {
                     ...venta,
                     detalle: detalle.map(d => ({
-                        nombre: d.nombre_producto, // asegúrate que lo devuelva tu JOIN
+                        nombre: d.nombre_producto,
                         cantidad: d.cantidad,
                         precio_unitario: d.precio_unitario
                     }))
                 };
             }));
-
             res.json({
                 success: true,
                 pedidos: ventasConDetalle
             });
-
         } catch (error) {
             console.error("Error al obtener pedidos del usuario:", error);
             res.status(500).json({
@@ -161,5 +147,4 @@ class VentaController {
         }
     }
 }
-
 export default new VentaController();

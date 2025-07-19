@@ -1,5 +1,4 @@
-// src/models/Ventas.js
-import connection from '../utils/db.js'; // Importa el pool de conexión
+import connection from '../utils/db.js';
 
 class Ventas {
     /**
@@ -112,15 +111,11 @@ class Ventas {
                 transaccion_id_pago,
                 comentarios
             } = ventaData;
-
-            // Usa la conexión proporcionada (conn) para la consulta
-            // ¡Asegúrate de que 'fecha' sea el nombre correcto de la columna en tu tabla 'ventas'!
             const [result] = await conn.query(
-                `INSERT INTO ventas (id_usuario, total, estado_pedido, id_direccion_envio, metodo_pago, transaccion_id_pago, comentarios, fecha)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`, // <-- Añadido `fecha` con `NOW()`
+                `INSERT INTO ventas (id_usuario, total, estado_pedido, id_direccion_envio, metodo_pago, transaccion_id_pago, comentarios, fecha)VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
                 [id_usuario, total, estado_pedido, id_direccion_envio, metodo_pago || null, transaccion_id_pago || null, comentarios || null]
             );
-            return result.insertId; // Retorna el ID de la venta creada
+            return result.insertId;
         } catch (error) {
             console.error('Error al crear la venta en el modelo:', error);
             throw new Error('Error al crear la venta.');
@@ -156,7 +151,6 @@ class Ventas {
         }
     }
 
-
     /**
      * @description Elimina una venta/pedido por su ID.
      * @param {number} id - El ID de la venta a eliminar.
@@ -181,10 +175,8 @@ class Ventas {
     WHERE id_usuario = ?
     ORDER BY fecha DESC
 `, [id_usuario]);
-
         return rows;
     }
-
 }
 
-export default new Ventas(); // Exporta una instancia de la clase
+export default new Ventas();

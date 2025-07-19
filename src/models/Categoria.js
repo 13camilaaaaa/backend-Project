@@ -1,4 +1,3 @@
-// src/models/Categoria.js
 import connection from '../utils/db.js';
 
 class Categoria {

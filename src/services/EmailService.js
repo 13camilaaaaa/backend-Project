@@ -28,7 +28,6 @@ export const EmailService = {
                 <p><strong>ROSS MILLE</strong></p>
             `,
         };
-
         await transporter.sendMail(mailOptions);
     }
 };

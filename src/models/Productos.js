@@ -1,4 +1,3 @@
-// src/models/Producto.js
 import connection from '../utils/db.js';
 
 class Productos {
@@ -149,7 +148,7 @@ class Productos {
         }
     }
 
-    static getByGeneroNombre = async(nombreGenero) => {
+    static getByGeneroNombre = async (nombreGenero) => {
         try {
             const query = `
             SELECT
@@ -167,7 +166,6 @@ class Productos {
         }
     }
 
-
     /**
      * @description Elimina un producto por su ID.
      * @param {number} id - El ID del producto a eliminar.
@@ -184,7 +182,7 @@ class Productos {
         }
     }
 
-        static updateStock = async (productoId, cantidadCambio, conn) => {
+    static updateStock = async (productoId, cantidadCambio, conn) => {
         try {
             const [result] = await conn.query(
                 `UPDATE productos SET stock = stock + ? WHERE id = ?`,
@@ -196,7 +194,6 @@ class Productos {
             throw new Error('Error al actualizar el stock del producto.');
         }
     }
-
 }
 
-export default Productos; // Exporta una instancia de la clase
+export default Productos;

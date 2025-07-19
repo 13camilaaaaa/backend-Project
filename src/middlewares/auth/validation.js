@@ -1,4 +1,3 @@
-// src/middlewares/auth/validation.js
 import { body, validationResult } from 'express-validator';
 import ResponseProvider from '../../providers/ResponseProvider.js';
 
@@ -28,7 +27,7 @@ const registerValidationRules = [
     body('telefono_usuario').trim().optional().notEmpty().withMessage('El teléfono no puede estar vacío si se proporciona.'),
 ];
 
-// Reglas de validación para el inicio de sesión
+// Reglas de validacion para el inicio de sesion
 const loginValidationRules = [
     body('correo_usuario').isEmail().withMessage('El correo electrónico debe ser válido.').normalizeEmail(),
     body('contrasena').notEmpty().withMessage('La contraseña es obligatoria.'),

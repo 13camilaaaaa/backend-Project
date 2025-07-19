@@ -1,5 +1,4 @@
-// src/services/ProductService.js
-import Productos from '../models/Productos.js'; // Importa el modelo Producto
+import Productos from '../models/Productos.js';
 
 class ProductService {
     /**
@@ -8,13 +7,11 @@ class ProductService {
      */
     static getAllProducts = async () => {
         try {
-            // El modelo Producto ya realiza los JOINs necesarios
             const products = await Productos.getAll();
             return products;
         } catch (error) {
-            // Lanza el error de nuevo o manéjalo de forma más específica
             console.error('[ProductService] Error al obtener todos los productos:', error.message);
-            throw error; // Propaga el error al controlador
+            throw error;
         }
     }
 
@@ -40,13 +37,8 @@ class ProductService {
      */
     static createProduct = async (productData) => {
         try {
-            // Aquí podrías añadir validaciones de negocio más complejas
-            // Por ejemplo, verificar si el nombre del producto ya existe (si se requiere)
-            // o si los IDs de talla/género/categoría/color son válidos antes de intentar la creación.
-
             // Desestructura los datos para pasarlos al modelo
             const { nombre, descripcion, precio, stock, imagen, id_talla, id_genero, id_categoria, id_color } = productData;
-
             const newProduct = await Producto.create(
                 nombre, descripcion, precio, stock, imagen, id_talla, id_genero, id_categoria, id_color
             );
@@ -65,7 +57,6 @@ class ProductService {
      */
     static updateProduct = async (productId, updateData) => {
         try {
-            // Aquí podrías añadir validaciones de negocio antes de actualizar
             const updatedProduct = await Productos.update(productId, updateData);
             return updatedProduct;
         } catch (error) {
@@ -89,9 +80,9 @@ class ProductService {
         }
     }
 
-    static getProductsByGenero = async(genero)  => {
-    return await Productos.getByGeneroNombre(genero);
-}
+    static getProductsByGenero = async (genero) => {
+        return await Productos.getByGeneroNombre(genero);
+    }
 
     /**
      * @description Actualiza el stock de un producto.
@@ -101,25 +92,21 @@ class ProductService {
      */
     static updateProductStock = async (productId, quantityChange) => {
         try {
-            // Primero, obtener el producto para saber el stock actual
             const product = await Productos.getById(productId);
             if (!product) {
                 throw new Error('Producto no encontrado para la actualización de stock.');
             }
-
             const newStock = product.stock + quantityChange;
             if (newStock < 0) {
                 throw new Error('Stock insuficiente para esta operación.');
             }
-
             // Actualizar solo el campo de stock
             const updated = await Productos.update(productId, { stock: newStock });
-            return updated !== null; // Retorna true si se actualizó, false si no se encontró
+            return updated !== null;
         } catch (error) {
             console.error(`[ProductService] Error al actualizar stock para producto ${productId}:`, error.message);
             throw error;
         }
     }
 }
-
 export default ProductService;

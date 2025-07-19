@@ -1,5 +1,4 @@
 import connection from "../utils/db.js";
-
 export class Ciudades {
     static getByDepartamento = async (id_departamento) => {
         const [rows] = await connection.query(

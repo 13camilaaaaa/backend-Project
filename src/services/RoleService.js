@@ -1,6 +1,5 @@
-// src/services/RoleService.js
-import Roles from '../models/Roles.js'; // Importa el modelo Roles
-import UsuariosRol from '../models/UsuariosRol.js'; // Importa el modelo UsuarioRol
+import Roles from '../models/Roles.js';
+import UsuariosRol from '../models/UsuariosRol.js';
 
 class RoleService {
     /**
@@ -40,7 +39,6 @@ class RoleService {
      */
     async assignRoleToUser(userId, roleId) {
         try {
-            // Aquí podrías validar si el usuario y el rol existen antes de asignar
             const result = await UsuariosRol.assignRole(userId, roleId);
             return result;
         } catch (error) {
@@ -63,8 +61,6 @@ class RoleService {
             throw error;
         }
     }
-
-    // Opcional: Métodos para crear, actualizar, eliminar roles y remover asignaciones de rol
 }
 
 export default new RoleService();

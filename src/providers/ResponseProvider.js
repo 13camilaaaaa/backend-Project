@@ -31,7 +31,7 @@ class ResponseProvider {
         return res.status(statusCode).json({
             success: false,
             message: message,
-            error: errorDetails // Puedes incluir detalles del error aquí
+            error: errorDetails
         });
     }
 

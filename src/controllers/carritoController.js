@@ -54,16 +54,13 @@ class CarritoController {
             const item = await Carrito.obtenerItemCarrito(carrito.id, id_producto);
 
             if (item) {
-                // Si el item ya existe, actualiza la cantidad.
-                // Aquí podrías decidir si mantienes el precio/talla/color original del item
-                // o si lo actualizas con los nuevos valores. Por ahora, lo actualizamos.
                 const nuevaCantidad = item.cantidad + cantidad;
                 await Carrito.actualizarItemCarrito(
                     item.id,
                     nuevaCantidad,
-                    precio_unitario_al_momento, // Mantener o actualizar
-                    talla_nombre_al_momento,    // Mantener o actualizar
-                    color_nombre_al_momento     // Mantener o actualizar
+                    precio_unitario_al_momento,
+                    talla_nombre_al_momento,
+                    color_nombre_al_momento
                 );
             } else {
                 await Carrito.insertarItemCarrito(
@@ -112,7 +109,6 @@ class CarritoController {
             const item = await Carrito.obtenerItemPorId(id_item_carrito);
 
             if (!item || item.id_carrito !== carrito.id) {
-                // Asegurarse de que el item pertenece al carrito del usuario logueado
                 return ResponseProvider.forbidden(res, "Item no encontrado en su carrito.");
             }
 
@@ -137,7 +133,7 @@ class CarritoController {
 
     static async eliminarItemDelCarrito(req, res) {
         const id_usuario = req.user.id;
-        const { id_item_carrito } = req.body; // O req.params.id_item_carrito si usas un DELETE con ID en la URL
+        const { id_item_carrito } = req.body;
 
         if (!id_item_carrito) {
             return ResponseProvider.badRequest(res, "ID del item a eliminar no proporcionado.");

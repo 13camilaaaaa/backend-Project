@@ -1,6 +1,5 @@
-// src/services/AuthService.js
 import { Usuarios } from '../models/Usuarios.js';
-import bcrypt from 'bcryptjs'; // Importa bcrypt para el hasheo de contraseñas
+import bcrypt from 'bcryptjs';
 
 class AuthService {
     /**
@@ -26,29 +25,25 @@ class AuthService {
                 correo_usuario,
                 telefono_usuario,
             } = userData;
-
             // Verificar si el correo ya está registrado
             const existingUser = await Usuarios.findByEmail(correo_usuario);
             if (existingUser) {
                 throw new Error('El correo electrónico ya está registrado.');
             }
-
             // 2. Hashear la contraseña
             const hashedPassword = await bcrypt.hash(contrasena, 10); // 10 es el costo de salting
-
             // 4. Crear el usuario, vinculándolo a la dirección
             const newUserId = await Usuarios.create(
                 nombre_usuario,
                 apellido_usuario,
-                hashedPassword, // Usar la contraseña hasheada
+                hashedPassword,
                 correo_usuario,
                 telefono_usuario
             );
-
             return newUserId;
         } catch (error) {
             console.error('[AuthService] Error al registrar usuario:', error.message);
-            throw error; // Propaga el error al controlador
+            throw error;
         }
     }
 
@@ -65,13 +60,11 @@ class AuthService {
             if (!user) {
                 return null; // Usuario no encontrado
             }
-
             // Comparar la contraseña proporcionada con la hasheada en la base de datos
             const isMatch = await bcrypt.compare(password, user.contrasena);
             if (!isMatch) {
                 return null; // Contraseña incorrecta
             }
-
             // Eliminar la contraseña del objeto usuario antes de devolverlo por seguridad
             delete user.contrasena;
             return user; // Retorna el usuario sin la contraseña
@@ -113,16 +106,13 @@ class AuthService {
     static actualizarContrasena = async (id, nuevaContrasenaPlano) => {
     try {
         const hashedPassword = await bcrypt.hash(nuevaContrasenaPlano, 10); // encripta la nueva contraseña
-
         const resultado = await Usuarios.actualizarContrasena(id, hashedPassword);
-
         return resultado; // true si se actualizó, false si no se encontró el usuario
     } catch (error) {
         console.error("[AuthService] Error al actualizar la contraseña:", error.message);
         throw error;
     }
 };
-
 }
 
 export default AuthService;

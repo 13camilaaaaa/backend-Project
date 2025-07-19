@@ -29,11 +29,6 @@ class Roles {
             throw new Error('Error al obtener el rol.');
         }
     }
-
-    // Opcional: Métodos para crear, actualizar, eliminar roles si tu aplicación lo requiere
-    // async create(nombre_rol) { ... }
-    // async update(id, nombre_rol) { ... }
-    // async delete(id) { ... }
 }
 
 export default new Roles();

@@ -1,6 +1,4 @@
-// src/models/DetalleVenta.js
-import connection from '../utils/db.js'; // Asegúrate de que la ruta a tu conexión DB sea correcta
-
+import connection from '../utils/db.js';
 class DetalleVenta {
     /**
      * @description Crea un nuevo registro de detalle de venta.
@@ -25,7 +23,6 @@ class DetalleVenta {
             throw new Error('Error al crear el detalle de venta.');
         }
     }
-
     /**
      * @description Obtiene todos los detalles de venta para una venta/pedido específica.
      * @param {number} venta_id - El ID de la venta.
@@ -67,7 +64,6 @@ class DetalleVenta {
     `, [id_venta]);
         return rows;
     }
-
 }
 
-export default new DetalleVenta(); // Exporta una instancia de la clase
+export default new DetalleVenta();

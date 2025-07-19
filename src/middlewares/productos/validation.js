@@ -28,11 +28,8 @@ const getProductByIdValidationRules = [
     param('id').isInt({ min: 1 }).withMessage('El ID del producto debe ser un número entero válido.'),
 ];
 
-// las reglas del tema del ID son temas que no se necesitan tener presente --------___-
-
 const updateProductValidationRules = [
     param('id').isInt({ min: 1 }).withMessage('El ID del producto debe ser un número entero válido.'),
-    // Para actualizaciones, los campos son opcionales, pero si se proporcionan, deben ser válidos
     body('nombre').optional().trim().notEmpty().withMessage('El nombre no puede estar vacío si se proporciona.'),
     body('descripcion').optional().trim().notEmpty().withMessage('La descripción no puede estar vacía si se proporciona.'),
     body('precio').optional().isFloat({ gt: 0 }).withMessage('El precio debe ser un número mayor que cero si se proporciona.'),
@@ -48,5 +45,5 @@ export const productoValidation = {
     create: [createProductValidationRules, validate],
     getById: [getProductByIdValidationRules, validate],
     update: [updateProductValidationRules, validate],
-    delete: [getProductByIdValidationRules, validate], // Reutilizamos para la validación del ID
+    delete: [getProductByIdValidationRules, validate],
 };

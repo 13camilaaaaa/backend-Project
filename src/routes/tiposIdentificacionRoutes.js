@@ -7,5 +7,4 @@ const router = Router();
 router.get('/', tiposIdentificacionController.getAllTiposIdentificacion);    // Obtener todos los tipos
 router.get('/:id', tiposIdentificacionController.getTipoIdentificacionById); // Obtener un tipo por ID
 
-// Exporta el router
 export default router;

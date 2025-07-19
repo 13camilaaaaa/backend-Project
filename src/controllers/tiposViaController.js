@@ -1,7 +1,5 @@
-// src/controllers/tiposViaController.js
 import TiposViaService from '../services/TiposViaService.js';
-import ResponseProvider from '../providers/ResponseProvider.js'; // Importa tu ResponseProvider
-
+import ResponseProvider from '../providers/ResponseProvider.js';
 class TiposViaController {
     /**
      * @description Obtiene todos los tipos de vía.
@@ -41,5 +39,4 @@ class TiposViaController {
         }
     }
 }
-
 export default new TiposViaController();

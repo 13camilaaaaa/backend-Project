@@ -1,5 +1,5 @@
 import CategoryService from '../services/CategoryService.js';
-import ResponseProvider from '../providers/ResponseProvider.js'; // Importa tu ResponseProvider
+import ResponseProvider from '../providers/ResponseProvider.js';
 
 class CategoriaController {
     /**

@@ -1,6 +1,5 @@
-// src/controllers/generoController.js
 import GeneroService from '../services/GeneroService.js';
-import ResponseProvider from '../providers/ResponseProvider.js'; // Importa tu ResponseProvider
+import ResponseProvider from '../providers/ResponseProvider.js';
 
 class GeneroController {
     /**
@@ -41,5 +40,4 @@ class GeneroController {
         }
     }
 }
-
 export default GeneroController;

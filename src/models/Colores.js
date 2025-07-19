@@ -1,5 +1,4 @@
 import connection from '../utils/db.js';
-
 class Colores {
     /**
      * @description Obtiene todos los colores disponibles.
@@ -14,7 +13,6 @@ class Colores {
             throw new Error('Error al obtener el listado de colores.');
         }
     }
-
     /**
      * @description Obtiene un color por su ID.
      * @param {number} id - El ID del color.
@@ -29,11 +27,5 @@ class Colores {
             throw new Error('Error al obtener el color.');
         }
     }
-
-    // Opcional: Métodos para crear, actualizar, eliminar colores si tu aplicación lo requiere
-    // async create(nombre_color) { ... }
-    // async update(id, nombre_color) { ... }
-    // async delete(id) { ... }
 }
-
 export default new Colores();

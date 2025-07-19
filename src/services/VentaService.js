@@ -1,4 +1,3 @@
-// src/services/VentaService.js
 import connection from '../utils/db.js';
 import Ventas from '../models/Ventas.js';
 import DetalleVenta from '../models/DetalleVenta.js';
@@ -22,7 +21,6 @@ class VentaService {
         let transactionConnection;
         try {
             const { id_usuario, id_direccion_envio, metodo_pago, transaccion_id_pago, comentarios, productos } = orderData;
-
             if (!id_usuario) {
                 throw new Error('ID de usuario es obligatorio para crear el pedido.');
             }
@@ -35,7 +33,6 @@ class VentaService {
             if (!metodo_pago) {
                 throw new Error('El método de pago es obligatorio.');
             }
-
             transactionConnection = await connection.getConnection();
             await transactionConnection.beginTransaction();
 
@@ -44,7 +41,6 @@ class VentaService {
 
             for (const item of productos) {
                 const productDb = await Productos.getById(item.id_producto);
-
                 if (!productDb) {
                     throw new Error(`Producto con ID ${item.id_producto} no encontrado.`);
                 }
@@ -64,7 +60,6 @@ class VentaService {
                 totalVenta += productDb.precio * item.cantidad;
             }
             // 2. Crear la venta (cabecera del pedido)
-            // Usamos 'Ventas' que es el nombre de la importación
             const ventaId = await Ventas.create(
                 {
                     id_usuario,
@@ -97,12 +92,9 @@ class VentaService {
             const carritoId = carritoUsuario ? carritoUsuario.id : null;
 
             if (carritoId) {
-                // <-- ¡CAMBIO AQUÍ! Usamos la nueva función del modelo Carrito
                 await Carrito.deleteItemsByCarritoId(carritoId, transactionConnection);
-                // <-- ¡CAMBIO AQUÍ! Usamos la función delete del modelo Carrito
                 await Carrito.delete(carritoId, transactionConnection);
             }
-
             await transactionConnection.commit();
             console.log(`Venta ${ventaId} creada exitosamente, stock actualizado y carrito vaciado.`);
             return { ventaId, totalVenta };
@@ -127,7 +119,7 @@ class VentaService {
      */
     async getAllVentas() {
         try {
-            const ventas = await Ventas.getAll(); // Usamos 'Ventas'
+            const ventas = await Ventas.getAll();
             return ventas;
         } catch (error) {
             console.error('[VentaService] Error al obtener todas las ventas:', error.message);
@@ -142,11 +134,11 @@ class VentaService {
      */
     async getVentaById(ventaId) {
         try {
-            const venta = await Ventas.getById(ventaId); // Usamos 'Ventas'
+            const venta = await Ventas.getById(ventaId);
             if (!venta) {
                 return null;
             }
-            const detalles = await DetalleVenta.getByVentaId(ventaId); // Usamos 'DetalleVenta'
+            const detalles = await DetalleVenta.getByVentaId(ventaId);
             venta.productos = detalles;
             return venta;
         } catch (error) {
@@ -164,7 +156,7 @@ class VentaService {
      */
     async updateVentaStatus(ventaId, newStatus, fechaPago = null) {
         try {
-            const isUpdated = await Ventas.updateStatus(ventaId, newStatus, fechaPago); // Usamos 'Ventas'
+            const isUpdated = await Ventas.updateStatus(ventaId, newStatus, fechaPago);
             return isUpdated;
         } catch (error) {
             console.error(`[VentaService] Error al actualizar estado de venta ${ventaId}:`, error.message);
@@ -179,7 +171,7 @@ class VentaService {
      */
     async deleteVenta(ventaId) {
         try {
-            const isDeleted = await Ventas.delete(ventaId); // Usamos 'Ventas'
+            const isDeleted = await Ventas.delete(ventaId);
             return isDeleted;
         } catch (error) {
             console.error(`[VentaService] Error al eliminar venta con ID ${ventaId}:`, error.message);

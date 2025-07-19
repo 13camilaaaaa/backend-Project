@@ -1,5 +1,4 @@
-// src/services/CarritoService.js
-import Carrito from '../models/Carrito.js'; // Importa el modelo Carrito
+import Carrito from '../models/Carrito.js';
 
 const CarritoService = {
     async obtenerOCrearCarritoActivo(id_usuario) {
@@ -19,7 +18,7 @@ const CarritoService = {
             await Carrito.actualizarItemCarrito(
                 itemExistente.id,
                 nuevaCantidad,
-                precio, // Puedes decidir si actualizas estos o los mantienes
+                precio,
                 talla,
                 color
             );
@@ -34,7 +33,7 @@ const CarritoService = {
                 color
             );
         }
-        return { id_carrito, id_producto }; // Podrías devolver el item completo o el carrito actualizado
+        return { id_carrito, id_producto };
     },
 
     async actualizarCantidadItem(id_item_carrito, nuevaCantidad) {

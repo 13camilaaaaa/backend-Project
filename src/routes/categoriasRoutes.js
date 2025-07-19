@@ -9,8 +9,6 @@ router.get('/:id', categoriaController.getCategoryById); // Obtener una categor�
 
 // Rutas para administración de categorías (podrían requerir autenticación/autorización)
 router.post('/', categoriaController.createCategory); // Crear nueva categoría
-// router.put('/:id', categoriaController.updateCategory); // Si implementaste update en el controlador
-// router.delete('/:id', categoriaController.deleteCategory); // Si implementaste delete en el controlador
 
 // Exporta el router
 export default router;

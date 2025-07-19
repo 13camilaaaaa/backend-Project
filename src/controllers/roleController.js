@@ -1,7 +1,5 @@
-// src/controllers/roleController.js
 import RoleService from '../services/RoleService.js';
-import ResponseProvider from '../providers/ResponseProvider.js'; // Importa tu ResponseProvider
-
+import ResponseProvider from '../providers/ResponseProvider.js';
 class RoleController {
     /**
      * @description Obtiene todos los roles.
@@ -52,9 +50,8 @@ class RoleController {
             if (isNaN(userId) || isNaN(roleId)) {
                 return ResponseProvider.badRequest(res, 'IDs de usuario o rol inválidos.');
             }
-
             const result = await RoleService.assignRoleToUser(userId, roleId);
-            ResponseProvider.success(res, 201, result.message, result); // Usa el mensaje del servicio
+            ResponseProvider.success(res, 201, result.message, result);
         } catch (error) {
             console.error('[roleController] Error al asignar rol a usuario:', error.message);
             ResponseProvider.internalError(res, 'Error interno del servidor al asignar el rol.');
@@ -72,7 +69,6 @@ class RoleController {
             if (isNaN(userId)) {
                 return ResponseProvider.badRequest(res, 'ID de usuario inválido.');
             }
-
             const roles = await RoleService.getRolesByUserId(userId);
             if (!roles || roles.length === 0) {
                 return ResponseProvider.notFound(res, 'No se encontraron roles para este usuario.');
@@ -84,6 +80,5 @@ class RoleController {
         }
     }
 }
-
 export default new RoleController();
 

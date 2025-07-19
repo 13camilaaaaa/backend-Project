@@ -1,5 +1,4 @@
-// src/services/ColorService.js
-import Colores from '../models/Colores.js'; // Importa el modelo Colores
+import Colores from '../models/Colores.js';
 
 class ColorService {
     /**
@@ -30,8 +29,6 @@ class ColorService {
             throw error;
         }
     }
-
-    // Opcional: Métodos para crear, actualizar, eliminar colores si tu aplicación lo requiere
 }
 
 export default new ColorService();

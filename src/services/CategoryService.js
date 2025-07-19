@@ -1,6 +1,4 @@
-// src/services/CategoryService.js
-import Categoria from '../models/Categoria.js'; // Importa el modelo Categoria
-
+import Categoria from '../models/Categoria.js';
 class CategoryService {
     /**
      * @description Obtiene todas las categorías de productos.
@@ -46,8 +44,6 @@ class CategoryService {
             throw error;
         }
     }
-
-    // Puedes añadir métodos para actualizar o eliminar categorías si son necesarios
 }
 
 export default new CategoryService();

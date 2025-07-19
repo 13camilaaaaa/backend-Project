@@ -9,7 +9,6 @@ class UsuariosRol {
      */
     async assignRole(id_usuario, id_rol) {
         try {
-            // Verificar si la asignación ya existe para evitar duplicados, dado UNIQUE (id_usuario, id_rol)
             const [existing] = await connection.query(
                 'SELECT 1 FROM usuario_rol WHERE id_usuario = ? AND id_rol = ?',
                 [id_usuario, id_rol]
@@ -101,5 +100,4 @@ class UsuariosRol {
         }
     }
 }
-
 export default new UsuariosRol();

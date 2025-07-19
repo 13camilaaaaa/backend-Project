@@ -1,6 +1,4 @@
-// src/models/Usuarios.js
-import connection from "../utils/db.js"; // Asegúrate de que la ruta a tu conexión DB sea correcta
-
+import connection from "../utils/db.js";
 export class Usuarios {
 
     /**
@@ -40,11 +38,9 @@ export class Usuarios {
             d.id_tipo_via AS direccion_tipo_via_id,
             tv.nombre_tipo_via AS direccion_tipo_via
         `;
-
             if (includePassword) {
                 selectFields += `, u.contrasena`;
             }
-
             const query = `
             SELECT ${selectFields}
             FROM usuarios u
@@ -56,7 +52,6 @@ export class Usuarios {
             LEFT JOIN paises p ON dep.id_pais = p.id
             WHERE u.correo_usuario = ?;
         `;
-
             const [rows] = await connection.query(query, [email]);
             return rows.length > 0 ? rows[0] : null;
         } catch (error) {
@@ -140,14 +135,10 @@ export class Usuarios {
             return result;
         } catch (error) {
             console.error(`Error en el modelo al actualizar el usuario con ID ${id}:`, error);
-            // *** CRÍTICO: Re-lanzar el error original para que el controlador pueda inspeccionar 'error.code' ***
             throw new Error('Error al actualizar el usuario.');
         }
     };
 
-
-    // Puedes añadir métodos para obtener usuario por ID, actualizar usuario, eliminar usuario, etc.
-    // Siguiendo el patrón de getById en Producto.js, pero para usuario
     static getById = async (id, includePassword = false) => {
         try {
             let selectFields = `
@@ -204,7 +195,6 @@ export class Usuarios {
         }
     }
 
-
     static actualizarContrasena = async (id, nuevaContrasenaHasheada) => {
         try {
             const [result] = await connection.query(
@@ -212,7 +202,7 @@ export class Usuarios {
                 [nuevaContrasenaHasheada, id]
             );
 
-            return result.affectedRows > 0; // true si se actualizó
+            return result.affectedRows > 0;
         } catch (error) {
             console.error(`[Usuarios] Error al actualizar contraseña para ID ${id}:`, error.message);
             throw error;

@@ -1,18 +1,13 @@
-// app.js
-// Archivo principal de tu aplicación Express (backend)
-
 // 1. Importaciones de módulos y configuraciones
-import express from 'express';        // Importa Express.js
-import cors from 'cors';              // Importa CORS para permitir solicitudes desde el frontend
-import dotenv from 'dotenv';          // Para cargar variables de entorno desde un archivo .env
-import connection from './src/utils/db.js'; // Importa la conexión a la base de datos
-import path from 'path';              // ¡NUEVO! Módulo 'path' para trabajar con rutas de archivos
-import { fileURLToPath } from 'url';  // Para obtener __dirname en módulos ES
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import connection from './src/utils/db.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
-// --- ADAPTACIÓN CLAVE: Importar el pool de conexiones de tu utils/db.js ---
-import pool from './src/utils/db.js'; // Importa el pool de conexiones
+import pool from './src/utils/db.js';
 
-// Para obtener __dirname en módulos ES (importante para path.join)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -45,46 +40,36 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // 2. Middlewares Globales
-// Habilita CORS para todas las solicitudes (importante para que el frontend pueda comunicarse)
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173', // ¡Asegúrate de definir FRONTEND_URL en tu .env del backend!
-    credentials: true // Permite que las cookies (si se usan) se envíen en las solicitudes
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    credentials: true
 }));
 // Parsea las solicitudes entrantes con cargas JSON
 app.use(express.json());
-// Parsea las solicitudes con cargas de URL-encoded (para formularios HTML si los usas)
+// Parsea las solicitudes con cargas de URL-encoded
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 
-// --- ¡NUEVO! Configuración para servir archivos estáticos (¡IMÁGENES!) ---
-// Esta línea le dice a Express que la carpeta 'uploads' (que está dentro de 'src' en tu backend)
-// será accesible públicamente a través de la URL '/uploads'
-// Por ejemplo, si tienes una imagen en 'src/uploads/productos/camiseta.jpg',
-// se accederá desde el frontend como 'http://localhost:3000/uploads/productos/camiseta.jpg'
+
 app.use('/uploads', express.static(path.join(__dirname, 'src', 'uploads')));
-// __dirname apunta a la raíz de tu proyecto backend (donde está app.js)
-// path.join(__dirname, 'src', 'uploads') construye la ruta completa a 'tu_proyecto_backend/src/uploads'
 
 
 // 3. Conexión a la Base de Datos
-// 3. Conexión a la Base de Datos
-// --- ADAPTACIÓN CLAVE: Función de conexión inicial usando tu 'pool' ---
 async function iniciarConexionDB() {
     try {
-        const conexion = await pool.getConnection(); // Intenta obtener una conexión del pool
-        conexion.release(); // Libera la conexión de vuelta al pool
+        const conexion = await pool.getConnection();
+        conexion.release();
         console.log('✅ Conexión exitosa a la base de datos MySQL.');
     } catch (error) {
         console.error('❌ Error al conectar a la base de datos:', error.message);
         console.error('Asegúrate de que tu servidor MySQL esté en ejecución y las credenciales sean correctas en .env');
-        process.exit(1); // Es recomendable salir de la aplicación si la conexión inicial a la DB falla
+        process.exit(1);
     }
 }
-iniciarConexionDB(); // Llama a la función para conectar a la DB al iniciar la aplicación
+iniciarConexionDB();
 
 // 4. Montaje de Rutas de la API
-// Prefijo '/api' para todas las rutas de tu API RESTful
 app.use('/api/auth', authRoutes); // Rutas para autenticación y usuarios
 app.use('/api/productos', productosRoutes); // Rutas para productos
 app.use('/api/ventas', ventasRoutes); // Rutas para ventas/pedidos
@@ -102,15 +87,14 @@ app.use('/api/ciudades', ciudadesRoutes);
 app.use('/api', usuariosRoutes);
 app.use('/api/carrito', cartRoutes);
 
-// 5. Ruta Raíz (opcional, para verificar que el servidor funciona)
+// 5. Ruta Raíz 
 app.get('/', (req, res) => {
     res.send('¡Bienvenido al Backend de tu Tienda de Ropa! La API está en /api');
 });
 
 // 6. Manejo Global de Errores (middleware de errores)
-// Este middleware se ejecuta cuando un error es propagado por los controladores o servicios
 app.use((err, req, res, next) => {
-    console.error(err.stack); // Imprime el stack trace del error para depuración
+    console.error(err.stack);
     res.status(500).json({ message: 'Algo salió mal en el servidor!', error: err.message });
 });
 
@@ -127,8 +111,6 @@ app.listen(PORT, () => {
 process.on('SIGINT', async () => {
     console.log('Cerrando servidor y conexión a la base de datos...');
     if (connection) {
-        // Si usas createPool (recomendado), no necesitas cerrar el pool manualmente aquí
-        // a menos que tengas un método específico para cerrar todas las conexiones del pool.
     }
     process.exit(0);
 });

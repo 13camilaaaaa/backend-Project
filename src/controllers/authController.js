@@ -1,10 +1,9 @@
-// src/controllers/authController.js (Ejemplo de refactorización usando ResponseProvider)
+
 import jwt from 'jsonwebtoken';
 import AuthService from '../services/AuthService.js';
-import ResponseProvider from '../providers/ResponseProvider.js'; // Importa tu ResponseProvider
+import ResponseProvider from '../providers/ResponseProvider.js'; 
 import { EmailService } from '../services/EmailService.js';
-// Mapa persistente en memoria del backend (mientras esté corriendo)
-const codigos = new Map(); // { id_usuario: codigo }
+const codigos = new Map();
 
 class AuthController {
     static register = async (req, res) => {
@@ -12,11 +11,9 @@ class AuthController {
             const userData = req.body;
             const newUserId = await AuthService.registerUser(userData);
 
-            // Usando ResponseProvider para éxito
             ResponseProvider.success(res, 201, 'Usuario registrado exitosamente.', { userId: newUserId });
         } catch (error) {
             console.error('[authController] Error en el registro:', error.message);
-            // Usando ResponseProvider para errores específicos
             if (error.message.includes('correo electrónico ya está registrado')) {
                 return ResponseProvider.conflict(res, error.message);
             }
@@ -79,13 +76,13 @@ class AuthController {
             const newAccessToken = jwt.sign(
                 { id: usuario.id, correo: usuario.correo_usuario },
                 process.env.ACCESS_TOKEN_SECRET,
-                { expiresIn: process.env.TOKEN_EXPIRATION } // ej: "15m"
+                { expiresIn: process.env.TOKEN_EXPIRATION }
             );
 
             const newRefreshToken = jwt.sign(
                 { id: usuario.id },
                 process.env.REFRESH_TOKEN_SECRET,
-                { expiresIn: process.env.REFRESH_TOKEN_EXPIRATION } // ej: "7d"
+                { expiresIn: process.env.REFRESH_TOKEN_EXPIRATION }
             );
 
             return ResponseProvider.success(res, 200, "Token renovado", {
@@ -142,8 +139,8 @@ class AuthController {
             return res.status(400).json({ success: false, message: "Faltan datos" });
         }
 
-        const codigo = Math.floor(100000 + Math.random() * 900000); // 6 dígitos
-        codigos.set(id, codigo); // guarda en memoria
+        const codigo = Math.floor(100000 + Math.random() * 900000);
+        codigos.set(id, codigo);
 
         try {
             await EmailService.enviarCodigoVerificacion(correo, codigo);
@@ -163,7 +160,7 @@ class AuthController {
 
         const codigoGuardado = codigos.get(id);
         if (parseInt(codigo) === codigoGuardado) {
-            codigos.delete(id); // limpiar por seguridad
+            codigos.delete(id);
             return res.status(200).json({ success: true, message: "Código válido" });
         } else {
             return res.status(400).json({ success: false, message: "Código incorrecto" });
@@ -199,8 +196,8 @@ class AuthController {
             return ResponseProvider.badRequest(res, "Faltan datos para enviar el código.");
         }
 
-        const codigo = Math.floor(100000 + Math.random() * 900000); // Código de 6 dígitos
-        codigos.set(id, codigo); // Guarda el código temporalmente en memoria
+        const codigo = Math.floor(100000 + Math.random() * 900000);
+        codigos.set(id, codigo);
 
         try {
             await EmailService.enviarCodigoVerificacion(correo, codigo);

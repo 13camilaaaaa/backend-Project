@@ -1,6 +1,5 @@
-// src/controllers/tallaController.js
 import TallaService from '../services/TallaServices.js';
-import ResponseProvider from '../providers/ResponseProvider.js'; // Importa tu ResponseProvider
+import ResponseProvider from '../providers/ResponseProvider.js';
 
 class TallaController {
     /**
@@ -41,5 +40,4 @@ class TallaController {
         }
     }
 }
-
 export default new TallaController();

@@ -1,6 +1,4 @@
-// src/models/Direccion.js
 import connection from '../utils/db.js';
-
 class Direccion {
     /**
      * @description Crea una nueva dirección en la base de datos.
